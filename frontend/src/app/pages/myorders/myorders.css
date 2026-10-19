@@ -274,18 +274,23 @@
 }
 
 .estado.pendiente {
-  color: #ffd54f;
+  color: #ab9a00;
   text-shadow: 0 0 6px rgba(255, 213, 79, 0.6);
 }
 
-.estado.en-proceso {
-  color: #00bcd4;
-  text-shadow: 0 0 6px rgba(0, 188, 212, 0.6);
+.estado.produciendo {
+  color: #ffd54f;
+  text-shadow: 0 0 6px rgba(251, 255, 34, 0.6);
 }
 
-.estado.completado {
+.estado.listo {
   color: #00e676;
   text-shadow: 0 0 6px rgba(0, 230, 118, 0.6);
+}
+
+.estado.entregado {
+  color: #00a01d;
+  text-shadow: 0 0 6px rgba(29, 249, 142, 0.6);
 }
 
 .estado.cancelado {

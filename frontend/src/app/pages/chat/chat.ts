@@ -27,8 +27,8 @@ export class ChatComponent implements OnInit, OnDestroy {
   chats: any[] = [];
   ultimoPing: number = 0;
   intervaloKeepAlive: any;
-  private apiUrl_logout = 'http://13.58.137.211:8080/api/usuarios';
-  private apiUrl = 'http://13.58.137.211:8080/api/chats';
+  private apiUrl_logout = 'http://localhost:8080/api/usuarios';
+  private apiUrl = 'http://localhost:8080/api/chats';
   private subMensajes: any;
 
   visible = false;
@@ -76,7 +76,7 @@ export class ChatComponent implements OnInit, OnDestroy {
       const ahora = Date.now();
       if (ahora - this.ultimoPing < 60000) {
         this.http.put(
-          'http://13.58.137.211:8080/api/usuarios/keep-alive', 
+          'http://localhost:8080/api/usuarios/keep-alive', 
           {}, 
           { headers: { 'Authorization': `Bearer ${this.usuario.token}` } }
         ).subscribe({
@@ -161,7 +161,7 @@ export class ChatComponent implements OnInit, OnDestroy {
 
     const headers = new HttpHeaders({ 'Authorization': `Bearer ${token}` });
 
-    this.http.put('http://13.58.137.211:8080/api/usuarios/cambiar-contrasena', {
+    this.http.put('http://localhost:8080/api/usuarios/cambiar-contrasena', {
       nuevaContrasena: this.nueva
     }, { headers }).subscribe({
       next: () => {
@@ -206,7 +206,7 @@ export class ChatComponent implements OnInit, OnDestroy {
     this.subMensajes = this.chatWS.mensaje$.subscribe((mensajeNuevo) => {
       if (!mensajeNuevo) return;
       this.mensajes.push(mensajeNuevo);
-      this.scrollAlFinal();
+      setTimeout(() => this.scrollAlFinal(), 0);
     });
     this.cargarMensajes(chat.idChat);
   }
@@ -266,7 +266,7 @@ export class ChatComponent implements OnInit, OnDestroy {
 
     this.chatWS.enviarMensaje(this.chatSeleccionado.idChat, mensajeObj);
     this.nuevoMensaje = '';
-    setTimeout(() => this.scrollAlFinal(), 100);
+    this.scrollAlFinal();
   }
 
 
@@ -279,7 +279,11 @@ export class ChatComponent implements OnInit, OnDestroy {
   }
 
   private scrollAlFinal() {
-    const contenedor = document.getElementById('chatMessages');
-    if (contenedor) contenedor.scrollTop = contenedor.scrollHeight;
+    setTimeout(() => {
+      const chatBox = document.getElementById('chatMessages');
+      if (chatBox) {
+        chatBox.scrollTop = chatBox.scrollHeight;
+      }
+    }, 0);
   }
 }

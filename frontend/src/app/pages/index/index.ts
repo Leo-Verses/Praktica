@@ -16,7 +16,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 export class IndexComponent implements OnInit {
   usuario: any;
   menuAbierto = false;
-  private apiUrl_logout = 'http://13.58.137.211:8080/api/usuarios';
+  private apiUrl_logout = 'http://localhost:8080/api/usuarios';
 
   menuItems = [
     { name: 'Catálogo', icon: 'bi bi-grid', route: '/index' },
@@ -69,7 +69,7 @@ export class IndexComponent implements OnInit {
       const ahora = Date.now();
       if (ahora - this.ultimoPing < 60000) {
         this.http.put(
-          'http://13.58.137.211:8080/api/usuarios/keep-alive', 
+          'http://localhost:8080/api/usuarios/keep-alive', 
           {}, 
           { headers: { 'Authorization': `Bearer ${this.usuario.token}` } }
         ).subscribe({
@@ -210,7 +210,7 @@ export class IndexComponent implements OnInit {
 
     const headers = new HttpHeaders({ 'Authorization': `Bearer ${token}` });
 
-    this.http.put('http://13.58.137.211:8080/api/usuarios/cambiar-contrasena', {
+    this.http.put('http://localhost:8080/api/usuarios/cambiar-contrasena', {
       nuevaContrasena: this.nueva
     }, { headers }).subscribe({
       next: () => {

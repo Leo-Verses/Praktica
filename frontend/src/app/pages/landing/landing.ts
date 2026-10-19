@@ -29,7 +29,7 @@ export class LandingComponent implements OnInit {
   mensajeEnviado = false;
   errorEnvio = false;
 
-  private apiUrl = 'http://13.58.137.211:8080/api/contacto';
+  private apiUrl = 'http://localhost:8080/api/contacto';
 
   constructor(
     private authService: AuthService,

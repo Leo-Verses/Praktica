@@ -471,7 +471,9 @@
 }
 
 .panel-card .estado.pendiente { background-color: #f39c12; }
-.panel-card .estado.activo { background-color: #27ae60; }
+.panel-card .estado.produciendo { background-color: #b9b302; }
+.panel-card .estado.listo { background-color: #80d5a4; }
+.panel-card .estado.entregado { background-color: #009d42; }
 .panel-card .estado.cancelado { background-color: #c0392b; }
 
 .cerrar-btn {

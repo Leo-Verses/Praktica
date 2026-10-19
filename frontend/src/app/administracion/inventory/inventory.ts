@@ -22,14 +22,14 @@ export class InventoryComponent {
   inventario: any[] = [];
   modalAbierto = false;
   itemEditando: any = null;
-  private apiProductos = 'http://13.58.137.211:8080/api/productos';
-  private apiUrl_logout = 'http://13.58.137.211:8080/api/usuarios';
+  private apiProductos = 'http://localhost:8080/api/productos';
+  private apiUrl_logout = 'http://localhost:8080/api/usuarios';
 
   menuItems = [
     { name: 'Panel', icon: 'bi bi-grid', route: '/panel' },
     { name: 'Empleados', icon: 'bi bi-pencil-square', route: '/empleados' },
     { name: 'Chat', icon: 'bi bi-chat-dots', route: '/chat-atencion' },
-    { name: 'Pagos', icon: 'bi bi-currency-dollar', route: '/pagos' },
+    //{ name: 'Pagos', icon: 'bi bi-currency-dollar', route: '/pagos' },
     { name: 'Inventario', icon: 'bi bi-list-check', route: '/inventario' },
     { name: 'Dashboard', icon: 'bi bi-bar-chart', route: '/dashboard' },
   ];
@@ -63,7 +63,7 @@ export class InventoryComponent {
       const ahora = Date.now();
       if (ahora - this.ultimoPing < 60000) {
         this.http.put(
-          'http://13.58.137.211:8080/api/usuarios/keep-alive', 
+          'http://localhost:8080/api/usuarios/keep-alive', 
           {}, 
           { headers: { 'Authorization': `Bearer ${this.usuario.token}` } }
         ).subscribe({
@@ -122,7 +122,7 @@ export class InventoryComponent {
     const token = this.usuario?.token;
     if (!token) return;
 
-    this.http.get<any>('http://13.58.137.211:8080/api/productos/inventario/servicios', {
+    this.http.get<any>('http://localhost:8080/api/productos/inventario/servicios', {
       headers: { 'Authorization': `Bearer ${token}` }
     }).subscribe(res => {
       this.inventario = res.servicios || [];
@@ -133,7 +133,7 @@ export class InventoryComponent {
     const token = this.usuario?.token;
     if (!token) return;
 
-    this.http.get<any>('http://13.58.137.211:8080/api/productos/inventario/packs', {
+    this.http.get<any>('http://localhost:8080/api/productos/inventario/packs', {
       headers: { 'Authorization': `Bearer ${token}` }
     }).subscribe(res => {
       this.inventario = res.packs || [];

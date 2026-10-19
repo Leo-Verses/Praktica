@@ -1,5 +1,6 @@
 package com.praktica.praktica.controller;
 
+import com.praktica.praktica.dto.CrearEmpleadoRequest;
 import com.praktica.praktica.model.Rol;
 import com.praktica.praktica.model.Usuario;
 import com.praktica.praktica.repository.RolRepository;
@@ -27,36 +28,46 @@ public class EmpleadoController {
     private RolRepository rolRepository;
 
     @PostMapping("/crear")
-    public ResponseEntity<?> crearEmpleado(@RequestBody Usuario usuario) {
+    public ResponseEntity<?> crearEmpleado(@RequestBody CrearEmpleadoRequest request) {
         try {
-            if (usuario.getEmail() == null || usuario.getEmail().isEmpty()) {
+            if (request == null || request.nombre() == null || request.nombre().isBlank()
+                    || request.apellido() == null || request.apellido().isBlank()) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Nombre y apellido son obligatorios"));
+            }
+            if (request.email() == null || request.email().isBlank()) {
                 return ResponseEntity.badRequest().body(Map.of("error", "El correo es obligatorio"));
             }
-
-            List<Integer> rolesValidos = List.of(2, 3, 4);
-            if (!rolesValidos.contains(usuario.getRol().getIdRol())) {
-                return ResponseEntity.badRequest().body(Map.of("error", "Rol inválido. Los roles válidos son: 'administrador', 'catalogador' o 'ventas'"));
+            if (request.rol() == null || request.rol().idRol() == null
+                    || !List.of(2, 3, 4).contains(request.rol().idRol())) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Rol de empleado inválido"));
             }
 
-            Optional<Rol> rolOptional = rolRepository.findByIdRol(usuario.getRol().getIdRol());
-            if (!rolOptional.isPresent()) {
+            Optional<Rol> rolOptional = rolRepository.findByIdRol(request.rol().idRol());
+            if (rolOptional.isEmpty()) {
                 return ResponseEntity.badRequest().body(Map.of("error", "Rol no encontrado"));
             }
 
-            Rol rol = rolOptional.get();
+            // Nunca utilizar una contraseña predeterminada compartida.
+            Usuario usuario = new Usuario();
+            usuario.setNombre(request.nombre().trim());
+            usuario.setApellido(request.apellido().trim());
+            usuario.setEmail(request.email().trim());
+            usuario.setContrasena(request.contrasena());
             usuario.setEstado("desconectado");
-            usuario.setContrasena("praktica2025");
-            usuario.setRol(rol);
+            usuario.setRol(rolOptional.get());
 
-            Usuario nuevoEmpleado = usuarioService.registrarEmpleado(usuario);
-
+            Usuario creado = usuarioService.registrarEmpleado(usuario);
+            // Devolver solo datos públicos; no exponer el hash BCrypt.
             return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
                     "mensaje", "Empleado creado exitosamente",
-                    "empleado", nuevoEmpleado
+                    "idUsuario", creado.getIdUsuario(),
+                    "email", creado.getEmail()
             ));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Error al crear el empleado", "details", e.getMessage()));
+                    .body(Map.of("error", "No se pudo registrar el empleado"));
         }
     }
 

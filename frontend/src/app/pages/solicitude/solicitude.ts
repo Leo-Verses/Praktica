@@ -17,7 +17,7 @@ export class SolicitarComponent implements OnInit {
   usuario: any = null;
   menuAbierto = false;
   userMenuAbierto = false;
-  private apiUrl_logout = 'http://13.58.137.211:8080/api/usuarios';
+  private apiUrl_logout = 'http://localhost:8080/api/usuarios';
 
   menuItems = [
     { name: 'Catálogo', icon: 'bi bi-grid', route: '/index' },
@@ -71,7 +71,7 @@ export class SolicitarComponent implements OnInit {
       const ahora = Date.now();
       if (ahora - this.ultimoPing < 60000) {
         this.http.put(
-          'http://13.58.137.211:8080/api/usuarios/keep-alive', 
+          'http://localhost:8080/api/usuarios/keep-alive', 
           {}, 
           { headers: { 'Authorization': `Bearer ${this.usuario.token}` } }
         ).subscribe({
@@ -90,7 +90,7 @@ export class SolicitarComponent implements OnInit {
   }
 
   cargarProductos() {
-    this.http.get('http://13.58.137.211:8080/api/productos').subscribe({
+    this.http.get('http://localhost:8080/api/productos').subscribe({
       next: (data: any) => {
         this.productos = [
           ...data.servicios.map((s: any) => ({
@@ -158,7 +158,7 @@ export class SolicitarComponent implements OnInit {
 
     const headers = new HttpHeaders({ 'Authorization': `Bearer ${token}` });
 
-    this.http.put('http://13.58.137.211:8080/api/usuarios/cambiar-contrasena', {
+    this.http.put('http://localhost:8080/api/usuarios/cambiar-contrasena', {
       nuevaContrasena: this.nueva
     }, { headers }).subscribe({
       next: () => {
@@ -213,7 +213,7 @@ export class SolicitarComponent implements OnInit {
 
     const token = this.usuario.token;
 
-    this.http.post('http://13.58.137.211:8080/api/ordenes', solicitud, {
+    this.http.post('http://localhost:8080/api/ordenes', solicitud, {
       headers: { 'Authorization': `Bearer ${this.usuario.token}` }
     }).subscribe({
       next: (data) => {

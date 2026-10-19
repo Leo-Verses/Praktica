@@ -61,6 +61,22 @@
         <option [ngValue]="4">Ventas</option>
       </select>
 
+      <div class="campo-contrasena-empleado">
+        <label for="contrasena-nuevo-empleado">Contraseña del empleado</label>
+        <input id="contrasena-nuevo-empleado" type="password"
+               formControlName="contrasena" placeholder="Mínimo 12 caracteres"
+               autocomplete="new-password" minlength="12" maxlength="72" />
+      </div>
+
+      <div class="campo-contrasena-empleado">
+        <label for="confirmar-contrasena-nuevo-empleado">Confirmar contraseña</label>
+        <input id="confirmar-contrasena-nuevo-empleado" type="password"
+               formControlName="confirmarContrasena" placeholder="Repetir contraseña"
+               autocomplete="new-password" minlength="12" maxlength="72" />
+        <small *ngIf="formEmpleado.hasError('contrasenasDistintas') && formEmpleado.get('confirmarContrasena')?.value"
+               role="alert">Las contraseñas no coinciden.</small>
+      </div>
+
       <button type="submit" [disabled]="formEmpleado.invalid" class="btn-add">
         Agregar empleado
       </button>

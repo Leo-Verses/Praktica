@@ -33,6 +33,7 @@ export class PanelComponent implements OnInit, AfterViewInit {
   modalPagoAbierto = false;
   passwordValidacion = '';
   errorPassword = '';
+  confirmarContrasenaEmpleado = '';
   paso = 1;
   passwordPanel = '';
   activeChartIndex = 0;
@@ -48,16 +49,17 @@ export class PanelComponent implements OnInit, AfterViewInit {
   @ViewChild('ventasChart') ventasChart?: BaseChartDirective;
   @ViewChild('productosChart') productosChart?: BaseChartDirective;
 
-  private apiUrlEmpleados = 'http://13.58.137.211:8080/api/empleados';
-  private apiUrlUsuarios = 'http://13.58.137.211:8080/api/usuarios';
-  private apiUrlChats = 'http://13.58.137.211:8080/api/chats';
-  private apiUrl_logout = 'http://13.58.137.211:8080/api/usuarios';
-  private apiUrl_pagos = 'http://13.58.137.211:8080/api/pagos';
+  private apiUrlEmpleados = 'http://localhost:8080/api/empleados';
+  private apiUrlUsuarios = 'http://localhost:8080/api/usuarios';
+  private apiUrlChats = 'http://localhost:8080/api/chats';
+  private apiUrl_logout = 'http://localhost:8080/api/usuarios';
+  private apiUrl_pagos = 'http://localhost:8080/api/pagos';
 
   empleado = {
     nombre: '',
     apellido: '',
     email: '',
+    contrasena: '',
     rol: {
       idRol: 0
     }
@@ -97,7 +99,7 @@ export class PanelComponent implements OnInit, AfterViewInit {
 
     const headers = new HttpHeaders({ 'Authorization': `Bearer ${token}` });
 
-    this.http.put('http://13.58.137.211:8080/api/usuarios/cambiar-contrasena', {
+    this.http.put('http://localhost:8080/api/usuarios/cambiar-contrasena', {
       nuevaContrasena: this.nueva
     }, { headers }).subscribe({
       next: () => {
@@ -124,7 +126,7 @@ export class PanelComponent implements OnInit, AfterViewInit {
     { name: 'Panel', icon: 'bi bi-grid', route: '/panel' },
     { name: 'Empleados', icon: 'bi bi-pencil-square', route: '/empleados' },
     { name: 'Chat', icon: 'bi bi-chat-dots', route: '/chat-atencion' },
-    { name: 'Pagos', icon: 'bi bi-currency-dollar', route: '/pagos' },
+    //{ name: 'Pagos', icon: 'bi bi-currency-dollar', route: '/pagos' },
     { name: 'Dashboard', icon: 'bi bi-bar-chart', route: '/dashboard' },
   ];
 
@@ -166,6 +168,12 @@ export class PanelComponent implements OnInit, AfterViewInit {
 
     this.usuario = usuario;
 
+    if (usuario.rol !== 'administrador') {
+      this.menuItems = this.menuItems.filter(
+        item => item.route !== '/empleados'
+      );
+    }
+
     this.cargarGananciaTotal();
     this.cargarGananciaDiaria();
     this.cargarMensajesNoLeidos();
@@ -188,7 +196,7 @@ export class PanelComponent implements OnInit, AfterViewInit {
       const ahora = Date.now();
       if (ahora - this.ultimoPing < 60000) {
         this.http.put(
-          'http://13.58.137.211:8080/api/usuarios/keep-alive', 
+          'http://localhost:8080/api/usuarios/keep-alive', 
           {}, 
           { headers: { 'Authorization': `Bearer ${this.usuario.token}` } }
         ).subscribe({
@@ -301,7 +309,7 @@ export class PanelComponent implements OnInit, AfterViewInit {
     const token = this.usuario.token;
 
     this.http.get<{ nombre: string, cantidad: number }[]>(
-      `http://13.58.137.211:8080/api/productos/mas-vendidos`,
+      `http://localhost:8080/api/productos/mas-vendidos`,
       { headers: { Authorization: `Bearer ${token}` }}
     ).subscribe({
       next: res => {
@@ -321,7 +329,7 @@ export class PanelComponent implements OnInit, AfterViewInit {
     const token = this.usuario?.token;
 
     this.http.post(
-      `http://13.58.137.211:8080/api/usuarios/verificar-contrasena`,
+      `http://localhost:8080/api/usuarios/verificar-contrasena`,
       { password: this.passwordPanel },
       { headers: { Authorization: `Bearer ${token}` }}
     ).subscribe({
@@ -344,7 +352,7 @@ export class PanelComponent implements OnInit, AfterViewInit {
     this.errorPassword = '';
 
     this.http.post(
-      `http://13.58.137.211:8080/api/usuarios/verificar-contrasena`,
+      `http://localhost:8080/api/usuarios/verificar-contrasena`,
       { password: this.passwordValidacion },
       { headers: { Authorization: `Bearer ${token}` }}
     ).subscribe({
@@ -355,14 +363,17 @@ export class PanelComponent implements OnInit, AfterViewInit {
         }
 
         const payload = {
-          ...this.empleado,
-          email: this.empleado.email.includes('@') 
-                ? this.empleado.email 
+          nombre: this.empleado.nombre,
+          apellido: this.empleado.apellido,
+          rol: this.empleado.rol,
+          contrasena: this.empleado.contrasena,
+          email: this.empleado.email.includes('@')
+                ? this.empleado.email
                 : this.empleado.email + '@praktica.com'
         };
 
         this.http.post(
-          `http://13.58.137.211:8080/api/empleados/crear`,
+          `http://localhost:8080/api/empleados/crear`,
           payload,
           { headers: { Authorization: `Bearer ${token}` }}
         ).subscribe({
@@ -468,10 +479,12 @@ export class PanelComponent implements OnInit, AfterViewInit {
     this.empleado = { 
       nombre: '', 
       apellido: '', 
-      email: '', 
+      email: '',
+      contrasena: '',
       rol: { idRol: 0 }
     };
 
+    this.confirmarContrasenaEmpleado = '';
     this.passwordValidacion = '';
     this.errorPassword = '';
   }
@@ -479,16 +492,29 @@ export class PanelComponent implements OnInit, AfterViewInit {
   cerrarModal() {
     this.modalEmpleadoAbierto = false;
     this.paso = 1;
+    this.empleado.contrasena = '';
+    this.confirmarContrasenaEmpleado = '';
+    this.passwordValidacion = '';
   }
 
   continuarPaso2() {
     if (!this.empleado.nombre || 
       !this.empleado.apellido || 
-      !this.empleado.email || 
-      !this.empleado.rol.idRol) {
+      !this.empleado.email ||
+      !this.empleado.rol.idRol ||
+      !this.empleado.contrasena ||
+      !this.confirmarContrasenaEmpleado) {
         alert("Complete todos los campos del empleado");
         return;
       }
+    if (this.empleado.contrasena.length < 12) {
+      alert("La contraseña debe tener como mínimo 12 caracteres");
+      return;
+    }
+    if (this.empleado.contrasena !== this.confirmarContrasenaEmpleado) {
+      alert("Las contraseñas del empleado no coinciden");
+      return;
+    }
     this.paso = 2;
   }
 

@@ -34,8 +34,8 @@ export class ChatAtencionComponent implements OnInit, OnDestroy {
   ultimoPing: number = 0;
   intervaloKeepAlive: any;
   private subMensajes: any;
-  private apiUrl = 'http://13.58.137.211:8080/api/chats';
-  private apiUrl_logout = 'http://13.58.137.211:8080/api/usuarios';
+  private apiUrl = 'http://localhost:8080/api/chats';
+  private apiUrl_logout = 'http://localhost:8080/api/usuarios';
 
   visible = false;
   actual = '';
@@ -47,7 +47,7 @@ export class ChatAtencionComponent implements OnInit, OnDestroy {
     { name: 'Panel', icon: 'bi bi-grid', route: '/panel' },
     { name: 'Empleados', icon: 'bi bi-pencil-square', route: '/empleados' },
     { name: 'Chat', icon: 'bi bi-chat-dots', route: '/chat-atencion' },
-    { name: 'Pagos', icon: 'bi bi-currency-dollar', route: '/pagos' },
+    //{ name: 'Pagos', icon: 'bi bi-currency-dollar', route: '/pagos' },
     { name: 'Dashboard', icon: 'bi bi-bar-chart', route: '/dashboard' },
   ];
 
@@ -87,7 +87,7 @@ export class ChatAtencionComponent implements OnInit, OnDestroy {
       const ahora = Date.now();
       if (ahora - this.ultimoPing < 60000) {
         this.http.put(
-          'http://13.58.137.211:8080/api/usuarios/keep-alive', 
+          'http://localhost:8080/api/usuarios/keep-alive', 
           {}, 
           { headers: { 'Authorization': `Bearer ${this.usuario.token}` } }
         ).subscribe({
@@ -146,7 +146,7 @@ export class ChatAtencionComponent implements OnInit, OnDestroy {
 
     const headers = new HttpHeaders({ 'Authorization': `Bearer ${token}` });
 
-    this.http.put('http://13.58.137.211:8080/api/usuarios/cambiar-contrasena', {
+    this.http.put('http://localhost:8080/api/usuarios/cambiar-contrasena', {
       nuevaContrasena: this.nueva
     }, { headers }).subscribe({
       next: () => {
@@ -251,9 +251,9 @@ export class ChatAtencionComponent implements OnInit, OnDestroy {
     });
 
     this.cargarMensajes(chat.idChat);
+
+    this.inspeccionarOrden(true, false);
   }
-
-
 
   cerrarChat() {
     this.chatAbierto = false;
@@ -342,6 +342,7 @@ export class ChatAtencionComponent implements OnInit, OnDestroy {
       error: (err) => console.error('Error al enviar mensaje', err),
     });
     this.nuevoMensaje = '';
+    this.scrollAlFinal();
   }
 
 
@@ -370,25 +371,31 @@ export class ChatAtencionComponent implements OnInit, OnDestroy {
 
   reportarChat() { console.log('Reportando chat:', this.chatSeleccionado); }
 
-  inspeccionarOrden() {
+  inspeccionarOrden(marcarProduciendo: boolean = false, mostrarModal: boolean = true) {
     if (!this.chatSeleccionado) return;
 
     const idChat = this.chatSeleccionado.idChat;
     const token = this.usuario.token;
 
-    this.http.get(`http://13.58.137.211:8080/api/chats/${idChat}/inspeccion`, {
+    this.http.get(`http://localhost:8080/api/chats/${idChat}/inspeccion`, {
       headers: new HttpHeaders().set('Authorization', `Bearer ${token}`)
-    })
-    .subscribe({
+    }).subscribe({
       next: (orden: any) => {
+        orden.estado = orden.estado.toLowerCase();
         this.ordenSeleccionada = orden;
-        this.mostrarPanelOrden = true;
-      },
-      error: (err) => {
-        console.error('No se pudo cargar la orden.', err);
+
+        if (mostrarModal) {
+          this.mostrarPanelOrden = true;
+        }
+
+        if (marcarProduciendo && orden.estado === 'pendiente') {
+          this.marcarOrdenComoProduciendo(orden.idOrden);
+        }
       }
     });
   }
+
+
 
   marcarMensajesComoLeidos() {
     if (!this.chatSeleccionado) return;
@@ -406,10 +413,61 @@ export class ChatAtencionComponent implements OnInit, OnDestroy {
     });
   }
 
+  marcarOrdenComoProduciendo(idOrden: number) {
+    if (!this.ordenSeleccionada) return;
+    const estadoActual = this.ordenSeleccionada.estado;
 
+    if (estadoActual !== 'pendiente') return;
+
+    const token = this.usuario.token;
+
+    this.http.put(
+      `http://localhost:8080/api/ordenes/${idOrden}/estado?estado=produciendo`,
+      {},
+      { headers: new HttpHeaders().set('Authorization', `Bearer ${token}`) }
+    ).subscribe({
+      next: () => {
+        if (this.ordenSeleccionada.idOrden === idOrden) {
+          this.ordenSeleccionada.estado = 'produciendo';
+        }
+      }
+    });
+  }
+
+  cambiarEstadoOrden(estado: 'listo' | 'entregado') {
+    if (!this.ordenSeleccionada) return;
+
+    const token = this.usuario.token;
+
+    if (estado === 'listo' && this.ordenSeleccionada.estado !== 'produciendo') {
+      alert('Solo se puede marcar como LISTO si la orden está en producción.');
+      return;
+    }
+
+    if (estado === 'entregado' && this.ordenSeleccionada.estado !== 'listo') {
+      alert('Solo se puede marcar como ENTREGADO si la orden está en listo.');
+      return;
+    }
+
+    this.http.put(
+      `http://localhost:8080/api/ordenes/${this.ordenSeleccionada.idOrden}/estado?estado=${estado}`,
+      {},
+      { headers: new HttpHeaders().set('Authorization', `Bearer ${token}`) }
+    ).subscribe({
+      next: () => {
+        this.ordenSeleccionada.estado = estado;
+        console.log(`Orden ${this.ordenSeleccionada.idOrden} ahora está en ${estado}`);
+      },
+      error: (err) => console.error('Error al actualizar estado de la orden', err)
+    });
+  }
 
   private scrollAlFinal() {
-    const contenedor = document.getElementById('chatMessages');
-    if (contenedor) contenedor.scrollTop = contenedor.scrollHeight;
+    setTimeout(() => {
+      const chatBox = document.getElementById('chatMessages');
+      if (chatBox) {
+        chatBox.scrollTop = chatBox.scrollHeight;
+      }
+    }, 0);
   }
 }

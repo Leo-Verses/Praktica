@@ -7,9 +7,11 @@ import { AuthService } from '../services/auth';
 })
 export class RoleGuard implements CanActivate {
   constructor(private authService: AuthService, private router: Router) {}
+  
   canActivate(next: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
     const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
     const route = state.url;
+
     if (usuario && usuario.rol === 'cliente') {
       if (route === '/index' || route === '/solicitar' || route === '/chat' || route === '/mis-solicitudes' || route === '/soporte') {
         return true;
@@ -33,7 +35,36 @@ export class RoleGuard implements CanActivate {
         this.router.navigate(['/panel']);
         return false;
       }
-    } else {
+    }
+    else if (usuario && usuario.rol === 'ventas') {
+      const rutasVentas = [
+        '/dashboard',
+        '/chat-atencion',
+        '/pagos',
+        '/panel'
+      ];
+      if (rutasVentas.includes(route)) {
+        return true;
+      } else {
+        this.router.navigate(['/panel']);
+        return false;
+      }
+    }
+    else if (usuario && usuario.rol === 'catalogador') {
+      const rutasCatalogador = [
+        '/dashboard',
+        '/chat-atencion',
+        '/pagos',
+        '/panel'
+      ];
+      if (rutasCatalogador.includes(route)) {
+        return true;
+      } else {
+        this.router.navigate(['/panel']);
+        return false;
+      }
+    }
+    else {
       this.router.navigate(['/login'], { queryParams: { error: 'no-auth' } });
       alert('No tienes permisos para acceder a esta área.');
       return false;

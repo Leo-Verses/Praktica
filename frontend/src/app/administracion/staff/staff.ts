@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, FormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, FormGroup, FormsModule, Validators } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -53,7 +53,7 @@ export class StaffComponent implements OnInit {
   confirmar = '';
   confirmarAccion = false;
 
-  private apiUrl_logout = 'http://13.58.137.211:8080/api/usuarios';
+  private apiUrl_logout = 'http://localhost:8080/api/usuarios';
 
   @Output() cambioExitoso = new EventEmitter<void>();
 
@@ -61,7 +61,7 @@ export class StaffComponent implements OnInit {
     { name: 'Panel', icon: 'bi bi-grid', route: '/panel' },
     { name: 'Empleados', icon: 'bi bi-pencil-square', route: '/empleados' },
     { name: 'Chat', icon: 'bi bi-chat-dots', route: '/chat-atencion' },
-    { name: 'Pagos', icon: 'bi bi-currency-dollar', route: '/pagos' },
+    //{ name: 'Pagos', icon: 'bi bi-currency-dollar', route: '/pagos' },
     { name: 'Dashboard', icon: 'bi bi-bar-chart', route: '/dashboard' },
   ];
 
@@ -99,7 +99,7 @@ export class StaffComponent implements OnInit {
 
     const headers = new HttpHeaders({ 'Authorization': `Bearer ${token}` });
 
-    this.http.put('http://13.58.137.211:8080/api/usuarios/cambiar-contrasena', {
+    this.http.put('http://localhost:8080/api/usuarios/cambiar-contrasena', {
       nuevaContrasena: this.nueva
     }, { headers }).subscribe({
       next: () => {
@@ -125,7 +125,13 @@ export class StaffComponent implements OnInit {
       nombre: ['', Validators.required],
       apellido: ['', Validators.required],
       email: ['', Validators.required],
-      rol: ['', Validators.required]
+      rol: ['', Validators.required],
+      contrasena: ['', [Validators.required, Validators.minLength(12)]],
+      confirmarContrasena: ['', [Validators.required, Validators.minLength(12)]]
+    }, {
+      validators: (form: AbstractControl) =>
+        form.get('contrasena')?.value === form.get('confirmarContrasena')?.value
+          ? null : { contrasenasDistintas: true }
     });
   }
 
@@ -145,7 +151,7 @@ export class StaffComponent implements OnInit {
       const ahora = Date.now();
       if (ahora - this.ultimoPing < 60000) {
         this.http.put(
-          'http://13.58.137.211:8080/api/usuarios/keep-alive', 
+          'http://localhost:8080/api/usuarios/keep-alive', 
           {}, 
           { headers: { 'Authorization': `Bearer ${this.usuario.token}` } }
         ).subscribe({
@@ -167,7 +173,7 @@ export class StaffComponent implements OnInit {
     const token = this.usuario.token;
     const headers = new HttpHeaders({ 'Authorization': `Bearer ${token}` });
 
-    this.http.get<any>(`http://13.58.137.211:8080/api/usuarios/empleados?page=${page}&size=9`, { headers })
+    this.http.get<any>(`http://localhost:8080/api/usuarios/empleados?page=${page}&size=9`, { headers })
       .subscribe({
         next: resp => {
           this.empleados = resp.content;
@@ -190,7 +196,7 @@ export class StaffComponent implements OnInit {
     const headers = new HttpHeaders({ 'Authorization': `Bearer ${this.usuario.token}` });
 
     this.http.get<any>(
-      `http://13.58.137.211:8080/api/empleados/buscar?filtro=${termino}&page=0&size=9`,
+      `http://localhost:8080/api/empleados/buscar?filtro=${termino}&page=0&size=9`,
       { headers }
     ).subscribe(resp => {
       this.empleados = resp.content;
@@ -218,7 +224,8 @@ export class StaffComponent implements OnInit {
         nombre: this.formEmpleado.value.nombre,
         apellido: this.formEmpleado.value.apellido,
         email: this.formEmpleado.value.email + '@praktica.com',
-        rol: { idRol: Number(this.formEmpleado.value.rol) }
+        rol: { idRol: Number(this.formEmpleado.value.rol) },
+        contrasena: this.formEmpleado.value.contrasena
       };
       this.mostrarModal = true;
     }
@@ -230,7 +237,7 @@ export class StaffComponent implements OnInit {
     const headers = new HttpHeaders({ 'Authorization': `Bearer ${token}` });
 
     this.http.post(
-      `http://13.58.137.211:8080/api/usuarios/verificar-contrasena`,
+      `http://localhost:8080/api/usuarios/verificar-contrasena`,
       { password: this.passwordConfirmacion },
       { headers }
     ).subscribe({
@@ -247,7 +254,7 @@ export class StaffComponent implements OnInit {
     const headers = new HttpHeaders({ 'Authorization': `Bearer ${token}` });
 
     this.http.post(
-      `http://13.58.137.211:8080/api/empleados/crear`,
+      `http://localhost:8080/api/empleados/crear`,
       this.empleadoPendiente,
       { headers }
     ).subscribe({
@@ -269,6 +276,8 @@ export class StaffComponent implements OnInit {
     this.mostrarModal = false;
     this.passwordConfirmacion = '';
     this.empleadoPendiente = null;
+    // Evitar que las contraseñas sigan en el formulario tras cancelar.
+    this.formEmpleado.patchValue({ contrasena: '', confirmarContrasena: '' });
   }
 
   toggleMenu() {

@@ -25,7 +25,7 @@ export class ChatWebSocketService {
     }
 
     this.client = new Client({
-      webSocketFactory: () => new SockJS('http://13.58.137.211:8080/ws-chat'),
+      webSocketFactory: () => new SockJS('http://localhost:8080/ws-chat'),
       debug: (str) => console.log(str),
       reconnectDelay: 5000
     });

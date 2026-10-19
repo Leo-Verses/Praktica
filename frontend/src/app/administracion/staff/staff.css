@@ -697,3 +697,7 @@ tr:hover {
   from { transform: translateY(-30px); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
 } 
+/* T2: campos para crear una contraseña individual por empleado */
+.campo-contrasena-empleado { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.campo-contrasena-empleado input { width: 100%; box-sizing: border-box; }
+.campo-contrasena-empleado small { color: #8b1d1d; font-size: .8rem; }

@@ -24,7 +24,7 @@ export class LoginComponent {
   ) {}
 
   onLogin() {
-    this.http.post('http://13.58.137.211:8080/api/usuarios/login', this.credentials)
+    this.http.post('http://localhost:8080/api/usuarios/login', this.credentials)
       .subscribe({
         next: (response: any) => {
           localStorage.setItem('usuario', JSON.stringify({
@@ -36,15 +36,22 @@ export class LoginComponent {
             token: response.token
           }));
 
+          
           if (response.rol === 'cliente') {
             this.router.navigate(['/index']);
           } else if (response.rol === 'administrador') {
+            this.router.navigate(['/panel']);
+          } else if (
+            response.rol === 'ventas' ||
+            response.rol === 'catalogador'
+          ) {
             this.router.navigate(['/panel']);
           } else {
             alert('No tienes permisos para acceder a esta área.');
             localStorage.removeItem('usuario');
             this.credentials.password = '';
           }
+
         },
         error: (err) => {
           console.error('Error login:', err);
@@ -69,7 +76,7 @@ export class LoginComponent {
       return;
     }
 
-    this.http.post('http://13.58.137.211:8080/api/usuarios/google', { idToken })
+    this.http.post('http://localhost:8080/api/usuarios/google', { idToken })
       .subscribe({
         next: (res: any) => {
           localStorage.setItem('usuario', JSON.stringify({
@@ -101,7 +108,7 @@ export class LoginComponent {
 
     const payload = { email: this.reset.email, nuevaContrasena: this.reset.newPassword };
 
-    this.http.put('http://13.58.137.211:8080/api/usuarios/recuperar-contrasena', payload)
+    this.http.put('http://localhost:8080/api/usuarios/recuperar-contrasena', payload)
       .subscribe({
         next: () => {
           alert('Contraseña cambiada correctamente.');

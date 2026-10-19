@@ -47,7 +47,7 @@ export class RegisterComponent {
       contrasena: this.user.contrasena
     };
 
-    this.http.post('http://13.58.137.211:8080/api/usuarios/registro', body, { withCredentials: true })
+    this.http.post('http://localhost:8080/api/usuarios/registro', body, { withCredentials: true })
     .subscribe({
       next: (usuario: any) => {
         alert('Usuario registrado correctamente');

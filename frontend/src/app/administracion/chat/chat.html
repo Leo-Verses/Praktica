@@ -75,10 +75,18 @@
             <i class="bi bi-three-dots" title="opciones"></i>
           </button>
           <div *ngIf="optionsMenuAbierto" class="options-menu">
-            <button (click)="activarChat()">Activar chat</button>
-            <button (click)="cancelarChat()">Cancelar chat</button>
-            <button (click)="reportarChat()">Reportar chat</button>
             <button (click)="inspeccionarOrden()">Inspeccionar orden</button>
+            <button 
+              (click)="cambiarEstadoOrden('listo')" 
+              [disabled]="ordenSeleccionada?.estado !== 'produciendo'">
+              Marcar como Listo
+            </button>
+
+            <button 
+              (click)="cambiarEstadoOrden('entregado')" 
+              [disabled]="ordenSeleccionada?.estado !== 'listo'">
+              Marcar como Entregado
+            </button>
           </div>
         </div>
       </div>

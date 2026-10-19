@@ -36,6 +36,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/usuarios/registro", "/api/usuarios/login", "/api/usuarios/google", "/api/usuarios/recuperar-contrasena").permitAll()
                 .requestMatchers("/ws-chat", "/ws-chat/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/empleados/crear").hasRole("ADMINISTRADOR")
                 .requestMatchers("/api/chats/*/enviar").authenticated()
                 .requestMatchers("/api/chats/*/inspeccion").authenticated()
                 .requestMatchers("/api/pagos/generar-link").permitAll()

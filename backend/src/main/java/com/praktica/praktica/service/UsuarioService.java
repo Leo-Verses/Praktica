@@ -149,7 +149,7 @@ public class UsuarioService implements UserDetailsService {
 
     public Usuario registrarEmpleado(Usuario usuario) {
         if (usuarioRepository.findByEmail(usuario.getEmail()) != null) {
-            throw new RuntimeException("El correo ya está registrado");
+            throw new IllegalArgumentException("El correo ya está registrado");
         }
 
         List<String> rolesValidos = List.of("administrador", "catalogador", "ventas");
@@ -163,8 +163,12 @@ public class UsuarioService implements UserDetailsService {
                 .orElseThrow(() -> new RuntimeException("Rol '" + nombreRol + "' no encontrado en la base de datos"));
 
         usuario.setRol(rol);
-        String contrasenaPredeterminada = "1234";
-        usuario.setContrasena(passwordEncoder.encode(contrasenaPredeterminada));
+        String contrasena = usuario.getContrasena();
+        if (contrasena == null || contrasena.length() < 12
+                || contrasena.getBytes(java.nio.charset.StandardCharsets.UTF_8).length > 72) {
+            throw new IllegalArgumentException("La contraseña debe tener entre 12 y 72 bytes (UTF-8)");
+        }
+        usuario.setContrasena(passwordEncoder.encode(contrasena));
 
         return usuarioRepository.save(usuario);
     }

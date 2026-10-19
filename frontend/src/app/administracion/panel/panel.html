@@ -51,7 +51,7 @@
   </section>
 
   <section class="quick-actions">
-    <button class="action-btn" (click)="abrirModalEmpleado()">+ Nuevo Empleado</button>
+    <button *ngIf="usuario?.rol === 'administrador'" class="action-btn" (click)="abrirModalEmpleado()">+ Nuevo Empleado</button>
     <button class="action-btn" (click)="abrirModalPago()">💰 Registrar Pago</button>
     <button class="action-btn" [routerLink]="'/chat-atencion'">💬 Abrir Chat</button>
   </section>
@@ -140,6 +140,16 @@
           <option [ngValue]="2">Catalogador</option>
           <option [ngValue]="4">Ventas</option>
         </select>
+
+        <label for="panel-contrasena-empleado">Contraseña del nuevo empleado</label>
+        <input id="panel-contrasena-empleado" type="password"
+               [(ngModel)]="empleado.contrasena" autocomplete="new-password"
+               minlength="12" maxlength="72" placeholder="Mínimo 12 caracteres">
+
+        <label for="panel-confirmar-contrasena">Confirmar contraseña</label>
+        <input id="panel-confirmar-contrasena" type="password"
+               [(ngModel)]="confirmarContrasenaEmpleado" autocomplete="new-password"
+               minlength="12" maxlength="72" placeholder="Repita la contraseña">
 
       </div>
 

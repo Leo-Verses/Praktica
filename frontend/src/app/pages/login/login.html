@@ -1,0 +1,86 @@
+<div class="page-wrapper">
+  <div class="grid-container">
+    <div class="card shadow-lg border-0 rounded-4 form-card">
+      <div class="card-body p-4">
+        <div class="form-header">
+          <h3 class="text-center mb-3 fw-bold d-flex align-items-center justify-content-center gap-2 title-text">
+            <img src="/images/logo.png" alt="Logo" class="logo-img">
+            Inicia Sesión
+          </h3>
+        </div>
+        <br>
+
+        <form (ngSubmit)="onLogin()" #loginForm="ngForm">
+          <div class="mb-3">
+            <label class="form-label">Correo electrónico</label>
+            <input type="email" class="form-control" name="email" [(ngModel)]="credentials.email" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Contraseña</label>
+            <input type="password" class="form-control" name="password" [(ngModel)]="credentials.password" required>
+          </div>
+
+
+
+          <div class="d-grid mt-4">
+            <button type="submit" class="btn btn-primary btn-lg register-btn" [disabled]="loginForm.invalid">
+              <i class="bi bi-box-arrow-in-right"></i> Ingresar
+            </button>
+          </div>
+        </form>
+
+        <div class="d-grid mt-3">
+          <button type="button" class="btn btn-danger btn-lg register-google-btn" (click)="loginGoogle()">
+            <i class="bi bi-google"></i> Iniciar sesión con Google
+          </button>
+        </div>
+
+        <div class="text-center mt-4">
+          <a (click)="abrirModal()" class="forgot-link d-block mb-2">¿Has olvidado tu contraseña?</a>
+          <a routerLink="/register" class="login-link">¿No tienes cuenta? <span>Regístrate</span></a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" *ngIf="mostrarModal" (click)="cerrarModal()"></div>
+
+<div class="modal-cambiar-pass" *ngIf="mostrarModal">
+  <div class="modal-contenido" (click)="$event.stopPropagation()">
+    <h4>Restablecer Contraseña</h4>
+    <p class="modal-texto">Ingresa tu correo y una nueva contraseña segura.</p>
+
+    <form (ngSubmit)="cambiarPassword()" #resetForm="ngForm">
+      <div class="mb-3">
+        <label for="resetEmail" class="form-label">Correo electrónico</label>
+        <input type="email" id="resetEmail" name="resetEmail" class="form-control"
+              [(ngModel)]="reset.email" required>
+      </div>
+
+      <div class="mb-3">
+        <label for="resetPassword" class="form-label">Nueva contraseña</label>
+        <input type="password" id="resetPassword" name="resetPassword" class="form-control"
+              [(ngModel)]="reset.newPassword" required minlength="8">
+      </div>
+
+      <div class="mb-3">
+        <label for="confirmPassword" class="form-label">Confirmar contraseña</label>
+        <input type="password" id="confirmPassword" name="confirmPassword" class="form-control"
+              [(ngModel)]="reset.confirmPassword" required>
+      </div>
+
+      <div class="d-grid">
+        <button type="submit" class="btn btn-primary btn-lg register-btn"
+                [disabled]="resetForm.invalid">
+          <i class="bi bi-key"></i> Cambiar contraseña
+        </button>
+      </div>
+    </form>
+
+    <button class="btn-cerrar" (click)="cerrarModal()">
+      <i class="bi bi-x-lg"></i>
+    </button>
+  </div>
+</div>

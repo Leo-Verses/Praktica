@@ -1,0 +1,9 @@
+ejecutar en la terminal el angular.
+
+is al repositorio del presente archivo
+
+ejemplo: 
+
+cd C:\angular\Praktica-AWS
+
+ng serve -o        -> para ejecutar y abrir automaticamente

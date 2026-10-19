@@ -1,0 +1,137 @@
+<nav class="navbar">
+  <div class="nav-container">
+    <div class="logo" (click)="toggleUserMenu()">
+      <img src="./images/p-default.png" alt="Logo">
+        <div class="user-menu" *ngIf="userMenuAbierto" (click)="$event.stopPropagation()">
+          <p>{{ usuario?.nombre || 'Usuario' }}</p>
+          <button (click)="logout()">Cerrar sesión</button>
+          <br><br>
+          <button (click)="abrircambio()">Cambiar contraseña</button>
+        </div>
+    </div>
+
+    <ul class="nav-links" [class.active]="menuAbierto">
+      <li *ngFor="let item of menuItems">
+        <a
+          [routerLink]="item.route"
+          routerLinkActive="active-link"
+          [routerLinkActiveOptions]="{ exact: true }"
+          (click)="menuAbierto = false"
+        >
+          <i [class]="item.icon"></i> {{ item.name }}
+        </a>
+      </li>
+    </ul>
+
+
+    <div class="menu-toggle" (click)="toggleMenu()">
+      <i class="bi" [ngClass]="menuAbierto ? 'bi-x' : 'bi-list'"></i>
+    </div>
+  </div>
+</nav>
+
+
+<div id="catalogo" class="catalogo-header">
+  <div class="catalogo-title">Proyectos previos</div>
+</div>
+
+<div class="catalogo-carousel-container">
+  <div class="carousel-arrow left" (click)="prevSlide()">&#10094;</div>
+
+  <div class="catalogo-carousel">
+    <div class="catalogo-item" *ngFor="let item of visibleItems" (click)="openModal(item)">
+      <img *ngIf="item.type === 'image'" [src]="item.src" />
+      <video *ngIf="item.type === 'video'" [src]="item.src" controls></video>
+    </div>
+  </div>
+
+  <div class="carousel-arrow right" (click)="nextSlide()">&#10095;</div>
+</div>
+
+<div class="modal" [class.active]="modalOpen" (click)="closeModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <span class="close" (click)="closeModal()">&times;</span>
+    <img *ngIf="selectedItem?.type === 'image'" [src]="selectedItem.src" alt="">
+    <video *ngIf="selectedItem?.type === 'video'" [src]="selectedItem.src" controls autoplay></video>
+  </div>
+</div>
+
+<div id="catalogo" class="catalogo-header">
+  <br><br><br>
+  <div class="catalogo-title">Paquetes</div>
+</div>
+
+<div class="cards servicios-cards">
+  <div class="card">
+    <i class="bi bi-bullseye"></i>
+    <h3>Paquete Impacto Local</h3>
+    <p>Incluye diseño y distribución de 100 volantes promocionales para impulsar tu marca en tu zona.</p>
+  </div>
+
+  <div class="card">
+    <i class="bi bi-people"></i>
+    <h3>Paquete Evento Plus</h3>
+    <p>Organización completa de un evento publicitario con ambientación, logística y cobertura fotográfica.</p>
+  </div>
+
+  <div class="card">
+    <i class="bi bi-disc"></i>
+    <h3>Paquete Producción Total</h3>
+    <p>Producción, grabación y edición profesional para tu CD o DVD promocional, ideal para artistas o empresas.</p>
+  </div>
+
+  <div class="card">
+    <i class="bi bi-megaphone"></i>
+    <h3>Paquete Publicidad 360°</h3>
+    <p>Campaña integral en redes sociales, diseño de banners y anuncios en línea para máxima visibilidad.</p>
+  </div>
+
+  <div class="card">
+    <i class="bi bi-camera-video"></i>
+    <h3>Paquete Visual Premium</h3>
+    <p>Grabación de video promocional, edición profesional y adaptación para redes sociales o spots comerciales.</p>
+  </div>
+
+  <div class="card">
+    <i class="bi bi-palette"></i>
+    <h3>Paquete Identidad Creativa</h3>
+    <p>Diseño de logotipo, papelería corporativa y 50 tarjetas de presentación con un estilo único y profesional.</p>
+  </div>
+</div>
+
+
+
+<div class="promo-banner">
+  <img src="./images/prom.png" alt="Promoción">
+</div>
+
+
+<div class="modal-overlay-cambio" *ngIf="visible">
+  <div class="modal-cambio">
+    <div class="modal-cambio-header">
+      <h2>Cambiar Contraseña</h2>
+      <button class="modal-cambio-close" (click)="cerrar()">×</button>
+    </div>
+
+    <div class="modal-cambio-body">
+      <label class="modal-cambio-label">Contraseña Actual</label>
+      <input type="password" [(ngModel)]="actual" placeholder="Ingrese su contraseña actual" class="modal-cambio-input">
+
+      <label class="modal-cambio-label">Nueva Contraseña</label>
+      <input type="password" [(ngModel)]="nueva" placeholder="Ingrese nueva contraseña" class="modal-cambio-input">
+
+      <label class="modal-cambio-label">Confirmar Nueva Contraseña</label>
+      <input type="password" [(ngModel)]="confirmar" placeholder="Confirme la nueva contraseña" class="modal-cambio-input">
+
+      <div class="modal-cambio-check">
+        <input type="checkbox" id="confirmarAccion" [(ngModel)]="confirmarAccion">
+        <label for="confirmarAccion">Confirmo que deseo cambiar mi contraseña</label>
+      </div>
+    </div>
+
+    <div class="modal-cambio-footer">
+      <button class="modal-cambio-btn-cancel" (click)="cerrar()">Cancelar</button>
+      <button class="modal-cambio-btn-confirm" (click)="cambiar()">Cambiar Contraseña</button>
+    </div>
+  </div>
+</div>

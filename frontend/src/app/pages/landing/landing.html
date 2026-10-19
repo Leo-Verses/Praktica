@@ -1,0 +1,127 @@
+<nav class="navbar" [class.hidden]="!menuVisible">
+  <div class="nav-container">
+    <div class="logo">
+      <img src="/images/logo.png" alt="Logo">
+    </div>
+
+    <ul class="nav-links" [class.active]="menuAbierto">
+      <li><a (click)="scrollTo('inicio', $event)">Inicio</a></li>
+      <li><a (click)="scrollTo('nosotros', $event)">Nosotros</a></li>
+      <li><a (click)="scrollTo('servicios', $event)">Servicios</a></li>
+      <li><a (click)="scrollTo('productos', $event)">Productos</a></li>
+      <li><a (click)="scrollTo('contacto', $event)">Contacto</a></li>
+    </ul>
+
+    <div class="menu-toggle" (click)="toggleMenu()">
+      <i class="bi bi-list"></i>
+    </div>
+  </div>
+</nav>
+
+<section class="registro-card fade-in">
+  <div class="registro-content">
+    <h2>¡Únete a Prakticá y potencia tu marca!</h2>
+    <p>Regístrate hoy y descubre todas las herramientas y estrategias que tenemos para ti.</p>
+    <button class="cta-btn" (click)="irARegister()">Registrarse</button>
+  </div>
+</section>
+
+<section id="inicio" class="section inicio fade-in">
+  <h1>
+    {{ usuario?.nombre ? 'Bienvenido, ' + usuario.nombre + '!' : '¡Bienvenido a Prakticá!' }}
+  </h1>
+  <p>Explora las secciones y descubre todo lo que tenemos para ti.</p>
+  <button class="cta-btn" (click)="scrollTo('nosotros', $event)">Conócenos</button>
+</section>
+
+<section id="nosotros" class="section nosotros fade-in">
+  <h2>Sobre Nosotros</h2>
+  <p class="descripcion">
+    Somos <strong>Prákticos en alcanzar las metas</strong>. En <strong>Prakticá</strong> somos una agencia publicitaria enfocada en la innovación y la creatividad.
+  </p>
+
+  <h3>Porque invertir en publicidad?</h3>
+  <p class="descripcion">
+    Lo que no se publicita... no existe. La publicidad genera un impacto positivo, despierta el interés, motiva la compra y diferencia nuestro producto de la competencia. En definitiva, invita a tomar decisiones, hacer cosas. Por eso la publicidad es necesaria... imprescindible.
+  </p>
+</section>
+
+<section id="servicios" class="section servicios fade-in">
+  <h2>Nuestros Servicios</h2>
+  <br>
+  <div class="cards servicios-cards">
+    <div class="card">
+      <i class="bi bi-brush"></i>
+      <h3>Diseño Gráfico</h3>
+      <p>Desde logos hasta identidad corporativa profesional.</p>
+    </div>
+    <div class="card">
+      <i class="bi bi-megaphone"></i>
+      <h3>Marketing Digital</h3>
+      <p>Publicidad inteligente y gestión de redes sociales.</p>
+    </div>
+    <div class="card">
+      <i class="bi bi-camera-reels"></i>
+      <h3>Producción Audiovisual</h3>
+      <p>Contenido visual que impacta y cuenta historias.</p>
+    </div>
+  </div>
+  <br>
+  <h3>Prácticamente hacemos de todo</h3>
+  <p>
+    Avisos de prensa, radio y televisión • Diseño e impresión de afiches, brochures, trípticos y almanaques • Gigantografías • Producción e instalación de paneles • Organización de eventos corporativos • Impresiones en general • Producción y grabación de CD/DVD • Diseño y producción de merchandising • Sesiones fotográficas • Servicios de catering.
+  </p>
+  <p><strong>La eficiencia y la honestidad:</strong> nuestros valores emblemáticos.</p>
+</section>
+
+<section id="productos" class="section productos fade-in">
+  <h2>Productos</h2>
+  <br>
+  <div class="cards">
+    <div class="card">
+      <i class="bi bi-bullseye"></i>
+      <h3>Campañas integrales</h3>
+      <p>Planificación y ejecución de estrategias publicitarias completas.</p>
+    </div>
+    <div class="card">
+      <i class="bi bi-brush"></i>
+      <h3>Campañas gráficas</h3>
+      <p>Diseño visual impactante para promocionar tu marca de forma efectiva.</p>
+    </div>
+    <div class="card">
+      <i class="bi bi-calendar-event"></i>
+      <h3>Eventos</h3>
+      <p>Organización de eventos corporativos, lanzamientos y activaciones.</p>
+    </div>
+  </div>
+</section>
+
+<section id="contacto" class="section contacto fade-in">
+  <h2>Contáctanos</h2>
+  <p>¿Listo para llevar tu marca al siguiente nivel?</p>
+
+  <form (ngSubmit)="enviarMensaje()" #contactForm="ngForm" class="contact-form">
+    <input type="text" name="nombre" placeholder="Tu nombre" [(ngModel)]="mensaje.nombre" required />
+    <input type="email" name="correo" placeholder="Tu correo" [(ngModel)]="mensaje.correo" required />
+    <textarea name="mensaje" placeholder="Tu mensaje" rows="4" [(ngModel)]="mensaje.mensaje" required></textarea>
+    <button type="submit">Enviar Mensaje</button>
+  </form>
+
+  <p *ngIf="mensajeEnviado" class="exito">Tu mensaje ha sido enviado con éxito.</p>
+  <p *ngIf="errorEnvio" class="error">Ocurrió un error al enviar el mensaje.</p>
+</section>
+
+
+
+
+
+<footer class="footer">
+  <div class="footer-container">
+    <h3>Contáctanos</h3>
+    <ul>
+      <li><i class="bi bi-facebook"></i> <a href="https://www.facebook.com/share/1YMvHp6oJb/" target="_blank">Facebook</a></li>
+      <li><i class="bi bi-envelope"></i> <a href="mailto:prakticasac@gmail.com">prakticasac@gmail.com</a></li>
+      <li><i class="bi bi-whatsapp"></i> <a href="https://wa.me/51998099814" target="_blank">+51 998 099 814</a></li>
+    </ul>
+  </div>
+</footer>

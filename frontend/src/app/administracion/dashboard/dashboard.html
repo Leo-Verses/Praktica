@@ -1,0 +1,96 @@
+<nav class="navbar">
+  <div class="nav-container">
+    <div class="logo" (click)="toggleUserMenu()">
+      <img src="./images/p-default.png" alt="Logo" />
+      <div class="user-menu" *ngIf="userMenuAbierto" (click)="$event.stopPropagation()">
+        <p>{{ usuario?.nombre || 'Usuario' }}</p>
+        <button (click)="logout()">Cerrar sesión</button>
+        <br><br>
+        <button (click)="abrircambio()">Cambiar contraseña</button>
+      </div>
+    </div>
+
+    <ul class="nav-links" [class.active]="menuAbierto">
+      <li *ngFor="let item of menuItems">
+        <a [routerLink]="item.route"
+          routerLinkActive="active-link"
+          [routerLinkActiveOptions]="{ exact: true }"
+          (click)="menuAbierto = false">
+          <i [class]="item.icon"></i> {{ item.name }}
+        </a>
+      </li>
+    </ul>
+
+    <div class="menu-toggle" (click)="toggleMenu()">
+      <i class="bi" [ngClass]="menuAbierto ? 'bi-x' : 'bi-list'"></i>
+    </div>
+  </div>
+</nav>
+
+<div class="dashboard" style="display: flex; flex-wrap: wrap; gap: 20px;">
+
+  <div class="card" style="flex: 1 1 400px; min-width: 300px; height: 360px;">
+    <h3>Servicios y Packs más Solicitados</h3>
+    <div style="height: 300px;">
+      <canvas baseChart
+              [data]="productChartData"
+              [options]="productChartOptions"
+              [type]="'bar'">
+      </canvas>
+    </div>
+  </div>
+
+  <div class="card" style="flex: 1 1 400px; min-width: 300px; height: 360px;">
+    <h3>Ganancias Diarias: Mes Actual y Mes Pasado</h3>
+    <div style="height: 300px;">
+      <canvas baseChart
+              [data]="dailyEarningsChartData"
+              [options]="dailyEarningsChartOptions"
+              [type]="'line'">
+      </canvas>
+    </div>
+  </div>
+</div>
+
+<div class="card pagos-card mt-4">
+  <div class="card-body">
+    <h3>Órdenes Pagadas</h3>
+
+    <div class="filters mb-3">
+      <label>De</label>
+      <input type="date" [(ngModel)]="fechaInicio" class="form-control" placeholder="Fecha inicio">
+      <span>hasta</span>
+      <input type="date" [(ngModel)]="fechaFin" class="form-control" placeholder="Fecha fin">
+      <button class="btn btn-primary" (click)="filtrarPagos()">Filtrar</button>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-striped table-hover">
+        <thead>
+          <tr>
+            <th>ID Pago</th>
+            <th>Cliente</th>
+            <th>Fecha Pago</th>
+            <th>Monto</th>
+            <th>Metodo Pago</th>
+            <th>Estado Pago</th>
+            <th>Descripción Orden</th>
+            <th>Tipo Pedido</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let pago of pagos">
+            <td>{{ pago.idPago }}</td>
+            <td>{{ pago.nombreCliente }}</td>
+            <td>{{ pago.fechaPago | date:'short' }}</td>
+            <td>{{ pago.monto | currency:'USD':'symbol' }}</td>
+            <td>{{ pago.metodoPago }}</td>
+            <td>{{ pago.estadoPago }}</td>
+            <td>{{ pago.descripcion }}</td>
+            <td>{{ pago.tipoPedido }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

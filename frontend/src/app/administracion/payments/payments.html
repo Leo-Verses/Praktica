@@ -1,0 +1,112 @@
+<nav class="navbar">
+  <div class="nav-container">
+    <div class="logo" (click)="toggleUserMenu()">
+      <img src="./images/p-default.png" alt="Logo" />
+      <div class="user-menu" *ngIf="userMenuAbierto" (click)="$event.stopPropagation()">
+        <p>{{ usuario?.nombre || 'Usuario' }}</p>
+        <button (click)="logout()">Cerrar sesión</button>
+        <br><br>
+        <button (click)="abrircambio()">Cambiar contraseña</button>
+      </div>
+    </div>
+
+    <ul class="nav-links" [class.active]="menuAbierto">
+      <li *ngFor="let item of menuItems">
+        <a
+          [routerLink]="item.route"
+          routerLinkActive="active-link"
+          [routerLinkActiveOptions]="{ exact: true }"
+          (click)="menuAbierto = false"
+        >
+          <i [class]="item.icon"></i> {{ item.name }}
+        </a>
+      </li>
+    </ul>
+
+    <div class="menu-toggle" (click)="toggleMenu()">
+      <i class="bi" [ngClass]="menuAbierto ? 'bi-x' : 'bi-list'"></i>
+    </div>
+  </div>
+</nav>
+
+<div class="payment-panel">
+  <h2>Generar link de pago</h2>
+  <input type="number" placeholder="Número de orden" [(ngModel)]="numeroOrden" />
+  <input
+    type="text"
+    placeholder="Descripción del pedido"
+    [(ngModel)]="descripcion"
+  />
+  <input
+    type="number"
+    placeholder="Monto"
+    [(ngModel)]="monto"
+  />
+  <select [(ngModel)]="moneda">
+    <option value="PEN">PEN - Soles</option>
+    <option value="USD">USD - Dólares</option>
+  </select>
+  <button
+    (click)="generarLinkPago()"
+    [disabled]="!descripcion || !monto || monto <= 0"
+  >
+    Generar link
+  </button>
+  <p class="success" *ngIf="linkPago && success">Link generado con éxito!</p>
+  <p class="error" *ngIf="error">{{ error }}</p>
+  <div *ngIf="linkPago" class="link-container">
+    <input
+      type="text"
+      class="link-input"
+      [value]="linkPago"
+      readonly
+      (click)="$event.target.select()"
+    />
+    <div class="button-row">
+      <button
+        class="copy-btn"
+        (click)="copiarLink()"
+        title="Copiar link"
+      >
+        <i class="bi bi-clipboard"></i>
+      </button>
+      <button
+        class="send-btn"
+        (click)="enviarLinkChat()"
+        title="Enviar al chat"
+      >
+        <i class="bi bi-send"></i>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay-cambio" *ngIf="visible">
+  <div class="modal-cambio">
+    <div class="modal-cambio-header">
+      <h2>Cambiar Contraseña</h2>
+      <button class="modal-cambio-close" (click)="cerrar()">×</button>
+    </div>
+
+    <div class="modal-cambio-body">
+      <label class="modal-cambio-label">Contraseña Actual</label>
+      <input type="password" [(ngModel)]="actual" placeholder="Ingrese su contraseña actual" class="modal-cambio-input">
+
+      <label class="modal-cambio-label">Nueva Contraseña</label>
+      <input type="password" [(ngModel)]="nueva" placeholder="Ingrese nueva contraseña" class="modal-cambio-input">
+
+      <label class="modal-cambio-label">Confirmar Nueva Contraseña</label>
+      <input type="password" [(ngModel)]="confirmar" placeholder="Confirme la nueva contraseña" class="modal-cambio-input">
+
+      <div class="modal-cambio-check">
+        <input type="checkbox" id="confirmarAccion" [(ngModel)]="confirmarAccion">
+        <label for="confirmarAccion">Confirmo que deseo cambiar mi contraseña</label>
+      </div>
+    </div>
+
+    <div class="modal-cambio-footer">
+      <button class="modal-cambio-btn-cancel" (click)="cerrar()">Cancelar</button>
+      <button class="modal-cambio-btn-confirm" (click)="cambiar()">Cambiar Contraseña</button>
+    </div>
+  </div>
+</div>

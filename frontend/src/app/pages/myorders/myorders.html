@@ -1,0 +1,176 @@
+<nav class="navbar">
+  <div class="nav-container">
+    <div class="logo" (click)="toggleUserMenu()">
+      <img src="./images/p-default.png" alt="Logo">
+      <div class="user-menu" *ngIf="userMenuAbierto" (click)="$event.stopPropagation()">
+        <p>{{ usuario?.nombre || 'Usuario' }}</p>
+        <button (click)="logout()">Cerrar sesión</button>
+        <br><br>
+        <button (click)="abrircambio()">Cambiar contraseña</button>
+      </div>
+    </div>
+
+    <ul class="nav-links" [class.active]="menuAbierto">
+      <li *ngFor="let item of menuItems">
+        <a
+          [routerLink]="item.route"
+          routerLinkActive="active-link"
+          [routerLinkActiveOptions]="{ exact: true }"
+          (click)="menuAbierto = false"
+        >
+          <i [class]="item.icon"></i> {{ item.name }}
+        </a>
+      </li>
+    </ul>
+
+    <div class="menu-toggle" (click)="toggleMenu()">
+      <i class="bi" [ngClass]="menuAbierto ? 'bi-x' : 'bi-list'"></i>
+    </div>
+  </div>
+</nav>
+
+
+<section class="ordenes-section">
+  <h2 class="ordenes-title">Mis Solicitudes</h2>
+  <div class="buscador-container">
+    <input 
+      type="text" 
+      placeholder="Buscar por tipo, estado o ID..." 
+      (input)="filtrarOrdenes($event)" 
+      class="input-buscar">
+  </div>
+
+  <table class="tabla-ordenes">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Tipo</th>
+        <th>Cantidad</th>
+        <th>Entrega Estimada</th>
+        <th>Estado</th>
+        <th>Creación</th>
+        <th>Descripción</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let orden of ordenesFiltradas">
+        <td>{{ orden.id_orden }}</td>
+        <td>{{ orden.tipo_pedido }}</td>
+        <td>{{ orden.cantidad }}</td>
+        <td>{{ orden.fecha_entrega_estimada | date:'dd/MM/yyyy' }}</td>
+        <td>
+          <span [class]="'estado ' + orden.estado.toLowerCase()">
+            {{ orden.estado }}
+          </span>
+        </td>
+        <td>{{ orden.fecha_creacion | date:'dd/MM/yyyy' }}</td>
+
+        <td
+          class="descripcion-celda"
+          [title]="orden.descripcion"
+        >
+          {{ acortarDescripcion(orden.descripcion, 10) }}
+        </td>
+
+
+        <td class="acciones">
+          <button class="btn-ver" title="Ver solicitud" (click)="verDetalles(orden)">
+            <i class="bi bi-eye"></i>
+          </button>
+          <button class="btn-editar" title="Editar solicitud" (click)="editarOrden(orden)" [disabled]="orden.estado !== 'pendiente'">
+            <i class="bi bi-pencil"></i>
+          </button>
+          <button class="btn-cancelar" title="Cancelar solicitud" (click)="cancelarOrden(orden)" [disabled]="orden.estado === 'cancelado' || orden.estado === 'completado'">
+            <i class="bi bi-x-circle"></i>
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<div class="modal-backdrop" *ngIf="modalAbierto" (click)="cerrarModal()"></div>
+<div class="modal-editar" *ngIf="modalAbierto">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <h3>Editar Orden #{{ ordenSeleccionada?.id_orden }}</h3>
+
+    <form (ngSubmit)="guardarCambios()">
+      <label>Descripción:</label>
+      <textarea [(ngModel)]="ordenEdit.descripcion" name="descripcion" rows="3"></textarea>
+
+      <label>Cantidad:</label>
+      <input type="number" [(ngModel)]="ordenEdit.cantidad" name="cantidad" min="1" />
+
+      <label>Fecha Estimada de Entrega:</label>
+      <input type="date" [(ngModel)]="ordenEdit.fecha_entrega_estimada" name="fecha" />
+
+      <div class="modal-actions">
+        <button type="button" class="btn-cancelar" (click)="cerrarModal()">Cancelar</button>
+        <button type="submit" class="btn-guardar">Guardar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+
+
+<div class="modal-backdrop" *ngIf="modalDetalleAbierto" (click)="cerrarModalDetalle()"></div>
+  <div class="modal-detalle" *ngIf="modalDetalleAbierto">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <h3>Detalles de la Orden #{{ ordenSeleccionada?.id_orden }}</h3>
+        <div class="detalle-campos">
+          <p><strong>Cliente:</strong> {{ ordenSeleccionada?.nombre_cliente }}</p>
+          <p><strong>Tipo:</strong> {{ ordenSeleccionada?.tipo_pedido }}</p>
+          <p><strong>Cantidad:</strong> {{ ordenSeleccionada?.cantidad }}</p>
+          <p><strong>Fecha estimada de entrega:</strong> {{ ordenSeleccionada?.fecha_entrega_estimada | date:'dd/MM/yyyy' }}</p>
+          <p><strong>Estado:</strong> <span [class]="'estado ' + ordenSeleccionada?.estado.toLowerCase()">{{ ordenSeleccionada?.estado }}</span></p>
+          <p><strong>Fecha de creación:</strong> {{ ordenSeleccionada?.fecha_creacion | date:'dd/MM/yyyy HH:mm' }}</p>
+          <p><strong>Descripción:</strong></p>
+          <div class="detalle-descripcion">
+            {{ ordenSeleccionada?.descripcion || 'Sin descripción' }}
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cerrar" (click)="cerrarModalDetalle()">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+<div class="modal-backdrop" *ngIf="modalConfirmarAbierto" (click)="cerrarModalConfirmar()"></div>
+  <div class="modal-confirmar" *ngIf="modalConfirmarAbierto">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <h3>¿Cancelar orden #{{ ordenSeleccionada?.id_orden }}?</h3>
+      <p>Esta acción no se puede deshacer.</p>
+      <div class="modal-actions">
+        <button class="btn-cancelar" (click)="cerrarModalConfirmar()">No</button>
+        <button class="btn-confirmar" (click)="confirmarCancelacion()">Sí, cancelar</button>
+      </div>
+  </div>
+</div>
+
+<div class="modal-overlay-cambio" *ngIf="visible">
+  <div class="modal-cambio">
+    <div class="modal-cambio-header">
+      <h2>Cambiar Contraseña</h2>
+      <button class="modal-cambio-close" (click)="cerrar()">×</button>
+    </div>
+    <div class="modal-cambio-body">
+      <label class="modal-cambio-label">Contraseña Actual</label>
+      <input type="password" [(ngModel)]="actual" placeholder="Ingrese su contraseña actual" class="modal-cambio-input">
+      <label class="modal-cambio-label">Nueva Contraseña</label>
+      <input type="password" [(ngModel)]="nueva" placeholder="Ingrese nueva contraseña" class="modal-cambio-input">
+      <label class="modal-cambio-label">Confirmar Nueva Contraseña</label>
+      <input type="password" [(ngModel)]="confirmar" placeholder="Confirme la nueva contraseña" class="modal-cambio-input">
+      <div class="modal-cambio-check">
+        <input type="checkbox" id="confirmarAccion" [(ngModel)]="confirmarAccion">
+        <label for="confirmarAccion">Confirmo que deseo cambiar mi contraseña</label>
+      </div>
+    </div>
+    <div class="modal-cambio-footer">
+      <button class="modal-cambio-btn-cancel" (click)="cerrar()">Cancelar</button>
+      <button class="modal-cambio-btn-confirm" (click)="cambiar()">Cambiar Contraseña</button>
+    </div>
+  </div>
+</div>

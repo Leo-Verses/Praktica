@@ -1,0 +1,232 @@
+<nav class="navbar">
+  <div class="nav-container">
+    <div class="logo" (click)="toggleUserMenu()">
+      <img src="./images/p-default.png" alt="Logo" />
+      <div class="user-menu" *ngIf="userMenuAbierto" (click)="$event.stopPropagation()">
+        <p>{{ usuario?.nombre || 'Usuario' }}</p>
+        <button (click)="logout()">Cerrar sesión</button>
+        <br><br>
+        <button (click)="abrircambio()">Cambiar contraseña</button>
+      </div>
+    </div>
+
+    <ul class="nav-links" [class.active]="menuAbierto">
+      <li *ngFor="let item of menuItems">
+        <a
+          [routerLink]="item.route"
+          routerLinkActive="active-link"
+          [routerLinkActiveOptions]="{ exact: true }"
+          (click)="menuAbierto = false"
+        >
+          <i [class]="item.icon"></i> {{ item.name }}
+        </a>
+      </li>
+    </ul>
+
+    <div class="menu-toggle" (click)="toggleMenu()">
+      <i class="bi" [ngClass]="menuAbierto ? 'bi-x' : 'bi-list'"></i>
+    </div>
+  </div>
+</nav>
+
+<div class="panel-container">
+
+  <section class="kpi-cards">
+    <div class="card">
+      <h3>Clientes Conectados</h3>
+      <p>{{ clientesConectados }} en línea</p>
+    </div>
+    <div class="card">
+      <h3>Pagos Totales</h3>
+      <p>S/. {{ gananciaTotal }}</p>
+    </div>
+    <div class="card">
+      <h3>Empleados Conectados</h3>
+      <p>{{ empleadosConectados }} en línea</p>
+    </div>
+    <div class="card">
+      <h3>Chat</h3>
+      <p>{{ mensajesNuevos }} chats sin leer</p>
+    </div>
+  </section>
+
+  <section class="quick-actions">
+    <button class="action-btn" (click)="abrirModalEmpleado()">+ Nuevo Empleado</button>
+    <button class="action-btn" (click)="abrirModalPago()">💰 Registrar Pago</button>
+    <button class="action-btn" [routerLink]="'/chat-atencion'">💬 Abrir Chat</button>
+  </section>
+
+  <section class="daily-sales">
+    <h2>Cumplimiento de Ventas Diarias</h2>
+    <div class="sales-progress">
+      <div class="progress-bar">
+        <div class="progress-fill" [style.width.%]="porcentajeDiario"></div>
+      </div>
+      <p>{{ porcentajeDiario | number:'1.0-0' }}% de la meta diaria alcanzada (S/. {{ gananciaDiaria }} / S/. {{ metaDiaria }})</p>
+    </div>
+    <div class="sales-targets">
+      <div class="target">
+        <h3>Meta diaria</h3>
+        <p>S/. {{ metaDiaria }}</p>
+      </div>
+      <div class="target">
+        <h3>Ventas actuales</h3>
+        <p>S/. {{ gananciaDiaria }}</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="dashboard-charts-carousel">
+    <div class="charts-container">
+      <div [hidden]="activeChartIndex !== 0">
+        <canvas #ventasChart baseChart
+                [data]="ventasChartData"
+                [options]="ventasChartOptions"
+                [type]="'bar'">
+        </canvas>
+      </div>
+      
+      <div [hidden]="activeChartIndex !== 1">
+        <h3>Lo más vendido:</h3>
+        <canvas #productosChart baseChart
+                [data]="productosChartData"
+                [options]="productosChartOptions"
+                [type]="'doughnut'">
+        </canvas>
+      </div>
+
+      <div class="carousel-controls">
+        <button class="btn-prev" (click)="prevChart()">&#10094; Anterior</button>
+        <button class="btn-next" (click)="nextChart()">Siguiente &#10095;</button>
+      </div>
+
+    </div>
+  </section>
+</div>
+
+
+
+
+<div class="modal-overlay" *ngIf="modalEmpleadoAbierto">
+  <div class="modal">
+
+    <div class="modal-header">
+      <h2 *ngIf="paso === 1">Crear nuevo empleado</h2>
+      <h2 *ngIf="paso === 2">Confirmar identidad</h2>
+      <button class="close-btn" (click)="cerrarModal()">×</button>
+    </div>
+
+    <div class="modal-body">
+
+      <div *ngIf="paso === 1">
+
+        <label>Nombre</label>
+        <input type="text" [(ngModel)]="empleado.nombre" placeholder="Ingrese nombre">
+
+        <label>Apellido</label>
+        <input type="text" [(ngModel)]="empleado.apellido" placeholder="Ingrese apellido">
+
+        <label>Email</label>
+        <div class="input-email">
+          <input type="text" [(ngModel)]="empleado.email" 
+                placeholder="nombre.apellido" 
+                (keypress)="noArroba($event)">
+          <span>@praktica.com</span>
+        </div>
+        
+        <label>Rol</label>
+        <select [(ngModel)]="empleado.rol.idRol">
+          <option [ngValue]="null" disabled>Seleccione un rol</option>
+          <option [ngValue]="2">Catalogador</option>
+          <option [ngValue]="4">Ventas</option>
+        </select>
+
+      </div>
+
+      <div *ngIf="paso === 2">
+
+        <p class="text-info">
+          Para continuar, ingrese su contraseña para validar la creación del empleado.
+        </p>
+
+        <label>Contraseña</label>
+        <input type="password"
+              [(ngModel)]="passwordValidacion"
+              placeholder="Ingrese su contraseña">
+
+        <p class="error-text" *ngIf="errorPassword">
+          {{ errorPassword }}
+        </p>
+
+      </div>
+    </div>
+
+    <div class="modal-footer">
+
+      <div *ngIf="paso === 1">
+        <button class="btn-cancel" (click)="cerrarModal()">Cancelar</button>
+        <button class="btn-next" (click)="continuarPaso2()">Continuar</button>
+      </div>
+
+      <div *ngIf="paso === 2">
+        <button class="btn-back" (click)="paso = 1">← Volver</button>
+        <button class="btn-confirm" (click)="registrarEmpleado()">Registrar empleado</button>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="modalPagoAbierto">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Registrar Pago en Efectivo</h2>
+      <button class="close-btn" (click)="cerrarModalPago()">×</button>
+    </div>
+
+    <div class="modal-body">
+      <label>ID de Orden</label>
+      <input type="number" [(ngModel)]="pago.id_orden" placeholder="Ingrese ID de orden">
+
+      <label>Monto</label>
+      <input type="number" [(ngModel)]="pago.monto" placeholder="S/. 0.00">
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-cancel" (click)="cerrarModalPago()">Cancelar</button>
+      <button class="btn-confirm" (click)="registrarPago()">Registrar Pago</button>
+    </div>
+  </div>
+</div>
+
+
+<div class="modal-overlay-cambio" *ngIf="visible">
+  <div class="modal-cambio">
+    <div class="modal-cambio-header">
+      <h2>Cambiar Contraseña</h2>
+      <button class="modal-cambio-close" (click)="cerrar()">×</button>
+    </div>
+
+    <div class="modal-cambio-body">
+      <label class="modal-cambio-label">Contraseña Actual</label>
+      <input type="password" [(ngModel)]="actual" placeholder="Ingrese su contraseña actual" class="modal-cambio-input">
+
+      <label class="modal-cambio-label">Nueva Contraseña</label>
+      <input type="password" [(ngModel)]="nueva" placeholder="Ingrese nueva contraseña" class="modal-cambio-input">
+
+      <label class="modal-cambio-label">Confirmar Nueva Contraseña</label>
+      <input type="password" [(ngModel)]="confirmar" placeholder="Confirme la nueva contraseña" class="modal-cambio-input">
+
+      <div class="modal-cambio-check">
+        <input type="checkbox" id="confirmarAccion" [(ngModel)]="confirmarAccion">
+        <label for="confirmarAccion">Confirmo que deseo cambiar mi contraseña</label>
+      </div>
+    </div>
+
+    <div class="modal-cambio-footer">
+      <button class="modal-cambio-btn-cancel" (click)="cerrar()">Cancelar</button>
+      <button class="modal-cambio-btn-confirm" (click)="cambiar()">Cambiar Contraseña</button>
+    </div>
+  </div>
+</div>

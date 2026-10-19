@@ -1,0 +1,58 @@
+<div class="page-wrapper">
+    <div class="grid-container">
+        <div class="card shadow-lg border-0 rounded-4 form-card">
+            <div class="form-header">
+                <h3 class="text-center mb-0 fw-bold d-flex align-items-center justify-content-center gap-2 title-text">
+                    <img src="/images/logo.png" alt="Logo" class="logo-img">
+                    Registrate
+                </h3>
+            </div>
+            <div class="card-body p-4">
+                <p class="text-center subtitle-text">
+                    Crea tu cuenta para acceder a todas las funciones y comenzar tu experiencia.
+                </p>
+                <form (ngSubmit)="onSubmit()" #registerForm="ngForm">
+                <div class="row g-2">
+                    <div class="col-md-6">
+                        <label class="form-label">Nombre</label>
+                        <input type="text" class="form-control" name="nombre" [(ngModel)]="user.nombre" required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Apellido</label>
+                        <input type="text" class="form-control" name="apellido" [(ngModel)]="user.apellido" required>
+                    </div>
+                </div>
+
+                <div class="mb-3 mt-2">
+                    <label class="form-label">Gmail</label>
+                    <input type="email" class="form-control" name="email" [(ngModel)]="user.email" required email>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Empresa (opcional)</label>
+                    <input type="text" class="form-control" name="empresa" [(ngModel)]="user.empresa">
+                </div>
+                <div class="row g-2">
+                    <div class="col-md-6">
+                        <label class="form-label">Contraseña</label>
+                        <input type="password" class="form-control" name="contrasena" [(ngModel)]="user.contrasena" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Confirmar Contraseña</label>
+                        <input type="password" class="form-control" name="confirmPassword" [(ngModel)]="user.confirmPassword" required>
+                    </div>
+                </div>
+                <div class="d-grid mt-4">
+                    <button type="submit" class="btn btn-primary btn-lg register-btn" [disabled]="registerForm.invalid">
+                        <i class="bi bi-check-circle-fill"></i> Registrarse
+                    </button>
+                </div>
+                </form>
+                <div class="text-center mt-3">
+                    <a routerLink="/login" class="login-link">Ya estoy registrado</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

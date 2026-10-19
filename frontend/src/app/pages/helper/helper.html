@@ -1,0 +1,93 @@
+<nav class="navbar">
+  <div class="nav-container">
+    <div class="logo" (click)="toggleUserMenu()">
+      <img src="./images/p-default.png" alt="Logo">
+      <div class="user-menu" *ngIf="userMenuAbierto" (click)="$event.stopPropagation()">
+        <p>{{ usuario?.nombre || 'Usuario' }}</p>
+        <button (click)="logout()">Cerrar sesión</button>
+        <br><br>
+        <button (click)="abrircambio()">Cambiar contraseña</button>
+      </div>
+    </div>
+
+    <ul class="nav-links" [class.active]="menuAbierto">
+      <li *ngFor="let item of menuItems">
+        <a
+          [routerLink]="item.route"
+          routerLinkActive="active-link"
+          [routerLinkActiveOptions]="{ exact: true }"
+          (click)="menuAbierto = false"
+        >
+          <i [class]="item.icon"></i> {{ item.name }}
+        </a>
+      </li>
+    </ul>
+
+    <div class="menu-toggle" (click)="toggleMenu()">
+      <i class="bi" [ngClass]="menuAbierto ? 'bi-x' : 'bi-list'"></i>
+    </div>
+  </div>
+</nav>
+
+<div class="soporte-container">
+  <h2>Centro de Soporte</h2>
+  <p>Aqui estan las preguntas frecuentes, en caso de que ninguna resuelva su duda o inconveniente contáctanos directamente.</p>
+
+  <div class="faq-list">
+    <div class="faq-item">
+      <h4>¿Cómo puedo cambiar mi contraseña?</h4>
+      <p>Ve a tu perfil y selecciona la opción "Cambiar contraseña" en la configuración de cuenta.</p>
+    </div>
+
+    <div class="faq-item">
+      <h4>¿Dónde puedo ver el estado de mis pedidos?</h4>
+      <p>Puedes revisar el progreso de tus pedidos en la sección "Mis Solicitudes".</p>
+    </div>
+
+    <div class="faq-item">
+      <h4>¿Cómo puedo contactar al área de ventas?</h4>
+      <p>Puedes iniciar un chat al generar una solicitud y de esa manera contactar a los de ventas.</p>
+    </div>
+
+    <div class="faq-item">
+      <h4>¿Qué hago si mi pedido tiene un problema?</h4>
+      <p>Por favor, comunícate con nuestro equipo de soporte utilizando el formulario de contacto.</p>
+    </div>
+  </div>
+
+  <div class="soporte-boton">
+    <button id="soporteBoton" class="soporte-boton-pelota" (mousedown)="onMouseDown($event)" (click)="handleButtonClick()">
+      Contactar Soporte
+    </button>
+  </div>
+</div>
+
+<div class="modal-overlay-cambio" *ngIf="visible">
+  <div class="modal-cambio">
+    <div class="modal-cambio-header">
+      <h2>Cambiar Contraseña</h2>
+      <button class="modal-cambio-close" (click)="cerrar()">×</button>
+    </div>
+
+    <div class="modal-cambio-body">
+      <label class="modal-cambio-label">Contraseña Actual</label>
+      <input type="password" [(ngModel)]="actual" placeholder="Ingrese su contraseña actual" class="modal-cambio-input">
+
+      <label class="modal-cambio-label">Nueva Contraseña</label>
+      <input type="password" [(ngModel)]="nueva" placeholder="Ingrese nueva contraseña" class="modal-cambio-input">
+
+      <label class="modal-cambio-label">Confirmar Nueva Contraseña</label>
+      <input type="password" [(ngModel)]="confirmar" placeholder="Confirme la nueva contraseña" class="modal-cambio-input">
+
+      <div class="modal-cambio-check">
+        <input type="checkbox" id="confirmarAccion" [(ngModel)]="confirmarAccion">
+        <label for="confirmarAccion">Confirmo que deseo cambiar mi contraseña</label>
+      </div>
+    </div>
+
+    <div class="modal-cambio-footer">
+      <button class="modal-cambio-btn-cancel" (click)="cerrar()">Cancelar</button>
+      <button class="modal-cambio-btn-confirm" (click)="cambiar()">Cambiar Contraseña</button>
+    </div>
+  </div>
+</div>

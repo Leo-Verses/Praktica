@@ -1,0 +1,162 @@
+<nav class="navbar">
+  <div class="nav-container">
+    <div class="logo" (click)="toggleUserMenu()">
+      <img src="./images/p-default.png" alt="Logo" />
+      <div class="user-menu" *ngIf="userMenuAbierto" (click)="$event.stopPropagation()">
+        <p>{{ usuario?.nombre || 'Usuario' }}</p>
+        <button (click)="logout()">Cerrar sesión</button>
+        <br><br>
+        <button (click)="abrircambio()">Cambiar contraseña</button>
+      </div>
+    </div>
+
+    <ul class="nav-links" [class.active]="menuAbierto">
+      <li *ngFor="let item of menuItems">
+        <a
+          [routerLink]="item.route"
+          routerLinkActive="active-link"
+          [routerLinkActiveOptions]="{ exact: true }"
+          (click)="menuAbierto = false"
+        >
+          <i [class]="item.icon"></i> {{ item.name }}
+        </a>
+      </li>
+    </ul>
+
+    <div class="menu-toggle" (click)="toggleMenu()">
+      <i class="bi" [ngClass]="menuAbierto ? 'bi-x' : 'bi-list'"></i>
+    </div>
+  </div>
+</nav>
+
+    <div class="chat-wrapper">
+      <div class="chat-list" [class.oculto]="chatAbierto">
+        <div
+      *ngFor="let chat of chats"
+      class="chat-item"
+      [class.active]="chat.idChat === chatSeleccionado?.idChat"
+      (click)="abrirChat(chat)"
+    >
+      <div class="chat-avatar">
+        <i class="bi bi-person-circle"></i>
+      </div>
+      <div class="chat-details">
+        <div class="chat-header">
+          <h4>Orden #{{ chat.idOrden }} - {{ chat.nombreCliente }}</h4>
+          <span class="chat-time">{{ chat.fechaUltimoMensaje | date:'shortTime' }}</span>
+        </div>
+        <p class="chat-preview">
+          {{ chat.ultimoMensaje?.length > 45 
+              ? (chat.ultimoMensaje | slice:0:45) + '...' 
+              : (chat.ultimoMensaje || 'Sin mensajes aún') 
+          }}
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="chat-window">
+    <div class="chat-placeholder" *ngIf="!chatAbierto">
+      <i class="bi bi-chat-dots"></i>
+      <p>Selecciona una conversación para comenzar</p>
+    </div>
+
+    <ng-container *ngIf="chatAbierto">
+      <div class="chat-header-bar">
+        <i class="bi bi-arrow-left back-btn" title="cerrar chat" (click)="cerrarChat()"></i>
+        <div class="chat-info">
+          <h3>Orden #{{ chatSeleccionado?.idOrden }}</h3>
+          <span class="estado" [class.activo]="chatSeleccionado?.estado === 'activo'">
+            {{ chatSeleccionado?.estado }}
+          </span>
+        </div>
+        <div class="chat-options">
+          <button class="options-btn" (click)="toggleOptionsMenu()">
+            <i class="bi bi-three-dots" title="opciones"></i>
+          </button>
+          <div *ngIf="optionsMenuAbierto" class="options-menu">
+            <button (click)="activarChat()">Activar chat</button>
+            <button (click)="cancelarChat()">Cancelar chat</button>
+            <button (click)="reportarChat()">Reportar chat</button>
+            <button (click)="inspeccionarOrden()">Inspeccionar orden</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-body" id="chatMessages">
+        <div *ngFor="let msg of mensajes" class="mensaje" [class.propio]="msg.idEmisor === usuario?.idUsuario">
+          <div *ngIf="msg.nombreEmisor && msg.idEmisor !== usuario?.idUsuario" class="mensaje-emisor">
+            <strong>{{ msg.nombreEmisor }}</strong>
+          </div>
+
+          <div class="mensaje-burbuja">
+            <p>{{ msg.mensaje }}</p>
+            <small>{{ msg.fechaEnvio | date:'shortTime' }}</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-input">
+        <input
+          type="text"
+          [(ngModel)]="nuevoMensaje"
+          placeholder="Escribe un mensaje..."
+          (keydown.enter)="enviarMensaje()"
+        />
+        <button (click)="enviarMensaje()" title="Enviar mensaje"><i class="bi bi-send"></i></button>
+      </div>
+    </ng-container>
+  </div>
+
+  <div class="orden-panel" *ngIf="mostrarPanelOrden">
+    <div class="panel-card">
+      <h2>Orden #{{ ordenSeleccionada.idOrden }}</h2>
+
+      <p><strong>Cliente:</strong> {{ ordenSeleccionada.nombreCliente }}</p>
+      <p><strong>Teléfono:</strong> {{ ordenSeleccionada.telefono }}</p>
+      <p><strong>Tipo de pedido:</strong> {{ ordenSeleccionada.tipoPedido }}</p>
+      <p><strong>Producto:</strong> {{ ordenSeleccionada.nombreProducto }}</p>
+      <p><strong>Cantidad:</strong> {{ ordenSeleccionada.cantidad }}</p>
+      <p><strong>Estado:</strong> 
+        <span class="estado {{ ordenSeleccionada.estado }}">{{ ordenSeleccionada.estado }}</span>
+      </p>
+      <p><strong>Descripción:</strong></p>
+      <p>{{ ordenSeleccionada.descripcion }}</p>
+      <p><strong>Fecha de entrega estimada:</strong> {{ ordenSeleccionada.fechaEntregaEstimada | date:'shortDate' }}</p>
+
+      <button class="cerrar-btn" (click)="mostrarPanelOrden = false">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+
+
+<div class="modal-overlay-cambio" *ngIf="visible">
+  <div class="modal-cambio">
+    <div class="modal-cambio-header">
+      <h2>Cambiar Contraseña</h2>
+      <button class="modal-cambio-close" (click)="cerrar()">×</button>
+    </div>
+
+    <div class="modal-cambio-body">
+      <label class="modal-cambio-label">Contraseña Actual</label>
+      <input type="password" [(ngModel)]="actual" placeholder="Ingrese su contraseña actual" class="modal-cambio-input">
+
+      <label class="modal-cambio-label">Nueva Contraseña</label>
+      <input type="password" [(ngModel)]="nueva" placeholder="Ingrese nueva contraseña" class="modal-cambio-input">
+
+      <label class="modal-cambio-label">Confirmar Nueva Contraseña</label>
+      <input type="password" [(ngModel)]="confirmar" placeholder="Confirme la nueva contraseña" class="modal-cambio-input">
+
+      <div class="modal-cambio-check">
+        <input type="checkbox" id="confirmarAccion" [(ngModel)]="confirmarAccion">
+        <label for="confirmarAccion">Confirmo que deseo cambiar mi contraseña</label>
+      </div>
+    </div>
+
+    <div class="modal-cambio-footer">
+      <button class="modal-cambio-btn-cancel" (click)="cerrar()">Cancelar</button>
+      <button class="modal-cambio-btn-confirm" (click)="cambiar()">Cambiar Contraseña</button>
+    </div>
+  </div>
+</div>

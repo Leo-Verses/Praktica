@@ -1,0 +1,120 @@
+<nav class="navbar">
+  <div class="nav-container">
+    <div class="logo" (click)="toggleUserMenu()">
+      <img src="./images/p-default.png" alt="Logo" />
+      <div class="user-menu" *ngIf="userMenuAbierto" (click)="$event.stopPropagation()">
+        <p>{{ usuario?.nombre || 'Usuario' }}</p>
+        <button (click)="logout()">Cerrar sesión</button>
+      </div>
+    </div>
+
+    <ul class="nav-links" [class.active]="menuAbierto">
+      <li *ngFor="let item of menuItems">
+        <a
+          [routerLink]="item.route"
+          routerLinkActive="active-link"
+          [routerLinkActiveOptions]="{ exact: true }"
+          (click)="menuAbierto = false"
+        >
+          <i [class]="item.icon"></i> {{ item.name }}
+        </a>
+      </li>
+    </ul>
+
+    <div class="menu-toggle" (click)="toggleMenu()">
+      <i class="bi" [ngClass]="menuAbierto ? 'bi-x' : 'bi-list'"></i>
+    </div>
+  </div>
+</nav>
+
+
+<div class="fondo-seccion">
+  <div class="inventario-container">
+    <div class="inventario-header">
+      <h2>Inventario</h2>
+    </div>
+
+    <div class="filtros-inventario">
+      <button (click)="cargarServicios()">Servicios</button>
+      <button (click)="cargarPacks()">Packs</button>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Nombre</th>
+          <th>Descripción</th>
+          <th>Precio</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let item of inventario; let i = index">
+          <td>{{ i + 1 }}</td>
+
+          <td>{{ item.nombre ?? item.nombre_pack }}</td>
+
+          <td>{{ item.descripcion }}</td>
+
+          <td>
+            {{
+              (item.precio_base !== undefined ? item.precio_base : item.precio_pack)
+              | currency:'USD'
+            }}
+          </td>
+
+          <td>{{ item.estado }}</td>
+
+          <td class="acciones">
+
+            <button 
+              class="btn-editar"
+              (click)="abrirModal(item)">
+              Editar
+            </button>
+
+            <button 
+              class="btn-eliminar"
+              (click)="eliminarProducto(item.id || item.id_pack)">
+              Eliminar
+            </button>
+
+          </td>
+        </tr>
+      </tbody>
+
+    </table>
+  </div>
+</div>
+
+
+
+<div class="modal-bg" *ngIf="modalAbierto">
+  <div class="modal">
+    <h3>Editar {{ itemEditando?.precio_base !== undefined ? 'Servicio' : 'Pack' }}</h3>
+
+    <label>Nombre:</label>
+    <input type="text" [(ngModel)]="formEditar.nombre">
+
+    <label>Descripción:</label>
+    <textarea rows="3" [(ngModel)]="formEditar.descripcion"></textarea>
+
+    <label>Precio:</label>
+    <input type="number" [(ngModel)]="formEditar.precio">
+
+    <label>Estado:</label>
+    <select [(ngModel)]="formEditar.estado">
+      <option value="">-- Sin cambios --</option>
+      <option value="Activo">Activo</option>
+      <option value="Inactivo">Inactivo</option>
+    </select>
+
+    <div class="modal-acciones">
+      <button class="btn-cancelar" (click)="cerrarModal()">Cancelar</button>
+      <button class="btn-confirmar" (click)="confirmarEdicion()">Confirmar</button>
+    </div>
+  </div>
+</div>

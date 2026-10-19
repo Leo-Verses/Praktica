@@ -1,0 +1,159 @@
+<nav class="navbar">
+  <div class="nav-container">
+    <div class="logo" (click)="toggleUserMenu()">
+      <img src="./images/p-default.png" alt="Logo" />
+      <div class="user-menu" *ngIf="userMenuAbierto" (click)="$event.stopPropagation()">
+        <p>{{ usuario?.nombre || 'Usuario' }}</p>
+        <button (click)="logout()">Cerrar sesión</button>
+        <br><br>
+        <button (click)="abrircambio()">Cambiar contraseña</button>
+      </div>
+    </div>
+
+    <ul class="nav-links" [class.active]="menuAbierto">
+      <li *ngFor="let item of menuItems">
+        <a
+          [routerLink]="item.route"
+          routerLinkActive="active-link"
+          [routerLinkActiveOptions]="{ exact: true }"
+          (click)="menuAbierto = false"
+        >
+          <i [class]="item.icon"></i> {{ item.name }}
+        </a>
+      </li>
+    </ul>
+
+    <div class="menu-toggle" (click)="toggleMenu()">
+      <i class="bi" [ngClass]="menuAbierto ? 'bi-x' : 'bi-list'"></i>
+    </div>
+  </div>
+</nav>
+
+<div class="fondo-seccion">
+  <div class="empleados-header">
+    <div class="search-box">
+      <i class="bi bi-search"></i>
+      <input 
+        type="text" 
+        placeholder="Buscar empleado..." 
+        [(ngModel)]="terminoBusqueda" 
+        (input)="filtrarEmpleados()"
+      />
+    </div>
+  </div>
+
+  <form [formGroup]="formEmpleado" (ngSubmit)="agregarEmpleado()">
+      <input formControlName="nombre" placeholder="Nombre" />
+      <input formControlName="apellido" placeholder="Apellido" />
+      <div class="input-email">
+        <input 
+          type="text" 
+          formControlName="email"
+          placeholder="nombre.apellido"
+          (keypress)="noArroba($event)" 
+        />
+        <span>@praktica.com</span>
+      </div>
+      <select formControlName="rol">
+        <option [ngValue]="null" disabled selected>Seleccione rol</option>
+        <option [ngValue]="3">Administrador</option>
+        <option [ngValue]="2">Catalogador</option>
+        <option [ngValue]="4">Ventas</option>
+      </select>
+
+      <button type="submit" [disabled]="formEmpleado.invalid" class="btn-add">
+        Agregar empleado
+      </button>
+  </form>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Apellido</th>
+        <th>Correo</th>
+        <th>Rol</th>
+        <th>Estado</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let emp of empleadosFiltrados">
+        <td>{{ emp.nombre }}</td>
+        <td>{{ emp.apellido }}</td>
+        <td>{{ emp.email }}</td>
+        <td>{{ emp.rol.nombreRol }}</td>
+        <td>{{ emp.estado }}</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="paginacion-numeros" *ngIf="totalPaginas > 1">
+    
+    <button (click)="paginaAnterior()" [disabled]="paginaActual === 0">
+      ⬅
+    </button>
+
+    <button 
+      *ngFor="let p of [].constructor(totalPaginas); let i = index"
+      (click)="cargarEmpleados(i)"
+      [class.active]="i === paginaActual"
+    >
+      {{ i + 1 }}
+    </button>
+
+    <button 
+      (click)="paginaSiguiente()" 
+      [disabled]="paginaActual + 1 >= totalPaginas"
+    >
+      ➡
+    </button>
+
+  </div>
+</div>
+
+<div class="modal-overlay" *ngIf="mostrarModal">
+  <div class="modal-content">
+    <h3>Confirmar operación</h3>
+    <p>Ingrese su contraseña para continuar</p>
+
+    <input 
+      type="password" 
+      [(ngModel)]="passwordConfirmacion" 
+      placeholder="Contraseña"
+    />
+
+    <div class="modal-buttons">
+      <button class="cancel" (click)="cancelarOperacion()">Cancelar</button>
+      <button class="confirm" (click)="confirmarOperacion()">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay-cambio" *ngIf="visible">
+  <div class="modal-cambio">
+    <div class="modal-cambio-header">
+      <h2>Cambiar Contraseña</h2>
+      <button class="modal-cambio-close" (click)="cerrar()">×</button>
+    </div>
+
+    <div class="modal-cambio-body">
+      <label class="modal-cambio-label">Contraseña Actual</label>
+      <input type="password" [(ngModel)]="actual" placeholder="Ingrese su contraseña actual" class="modal-cambio-input">
+
+      <label class="modal-cambio-label">Nueva Contraseña</label>
+      <input type="password" [(ngModel)]="nueva" placeholder="Ingrese nueva contraseña" class="modal-cambio-input">
+
+      <label class="modal-cambio-label">Confirmar Nueva Contraseña</label>
+      <input type="password" [(ngModel)]="confirmar" placeholder="Confirme la nueva contraseña" class="modal-cambio-input">
+
+      <div class="modal-cambio-check">
+        <input type="checkbox" id="confirmarAccion" [(ngModel)]="confirmarAccion">
+        <label for="confirmarAccion">Confirmo que deseo cambiar mi contraseña</label>
+      </div>
+    </div>
+
+    <div class="modal-cambio-footer">
+      <button class="modal-cambio-btn-cancel" (click)="cerrar()">Cancelar</button>
+      <button class="modal-cambio-btn-confirm" (click)="cambiar()">Cambiar Contraseña</button>
+    </div>
+  </div>
+</div>
